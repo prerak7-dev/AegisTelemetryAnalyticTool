@@ -146,3 +146,14 @@ Optional data-quality demo:
 cd simulator
 python generate_traffic.py --scenario weekend_event_meltdown --collector-url http://localhost:8000 --events-per-second 500 --duration-sec 120 --invalid-rate 0.02
 ```
+
+
+## Server selection dashboard
+
+The dashboard now includes a server explorer. After generating realtime traffic, use the sidebar to select:
+
+- Region
+- Server
+- Analysis time window
+
+The dashboard filters Command Center, Incident Deep Dive, Data Quality, and Scaling Readiness views to the selected server. A dedicated `Selected Server Analytics` tab shows per-zone frame pressure, hot-zone risk, and likely pressure sources for that server.
