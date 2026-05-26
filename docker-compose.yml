@@ -1,0 +1,103 @@
+services:
+  redpanda:
+    image: redpandadata/redpanda:v24.2.8
+    command:
+      - redpanda
+      - start
+      - --smp=1
+      - --memory=1G
+      - --reserve-memory=0M
+      - --overprovisioned
+      - --node-id=0
+      - --check=false
+      - --kafka-addr=internal://0.0.0.0:9092,external://0.0.0.0:19092
+      - --advertise-kafka-addr=internal://redpanda:9092,external://localhost:19092
+    ports:
+      - "19092:19092"
+      - "9644:9644"
+    healthcheck:
+      test: ["CMD-SHELL", "rpk cluster health | grep -E 'Healthy:.+true' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+  redpanda-console:
+    image: redpandadata/console:v2.7.2
+    environment:
+      KAFKA_BROKERS: redpanda:9092
+    ports:
+      - "8080:8080"
+    depends_on:
+      redpanda:
+        condition: service_healthy
+
+  clickhouse:
+    image: clickhouse/clickhouse-server:24.8
+    ports:
+      - "8123:8123"
+      - "9000:9000"
+    environment:
+      CLICKHOUSE_DB: aegis_telemetry
+      CLICKHOUSE_USER: default
+      CLICKHOUSE_PASSWORD: aegis_dev_password
+    volumes:
+      - ./infra/clickhouse/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - clickhouse_data:/var/lib/clickhouse
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8123/ping | grep Ok || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+  collector:
+    build:
+      context: .
+      dockerfile: services/collector/Dockerfile
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: redpanda:9092
+      TELEMETRY_BATCH_FLUSH_SIZE: "250"
+      ENABLE_LOAD_SHEDDING: "true"
+      LOAD_SHED_BATCH_THRESHOLD: "750"
+      PRIORITY2_SAMPLE_RATE: "0.65"
+      PRIORITY3_SAMPLE_RATE: "0.10"
+    ports:
+      - "8000:8000"
+    depends_on:
+      redpanda:
+        condition: service_healthy
+
+  processor:
+    build:
+      context: .
+      dockerfile: services/processor/Dockerfile
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: redpanda:9092
+      CLICKHOUSE_HOST: clickhouse
+      CLICKHOUSE_PORT: "8123"
+      CLICKHOUSE_DATABASE: aegis_telemetry
+      CLICKHOUSE_PASSWORD: aegis_dev_password
+      PROCESSOR_GROUP_ID: aegis-processor-local
+      WINDOW_GRACE_SECONDS: "8"
+    depends_on:
+      redpanda:
+        condition: service_healthy
+      clickhouse:
+        condition: service_healthy
+
+  dashboard:
+    build:
+      context: .
+      dockerfile: services/dashboard/Dockerfile
+    environment:
+      CLICKHOUSE_HOST: clickhouse
+      CLICKHOUSE_PORT: "8123"
+      CLICKHOUSE_DATABASE: aegis_telemetry
+      CLICKHOUSE_PASSWORD: aegis_dev_password
+    ports:
+      - "8501:8501"
+    depends_on:
+      clickhouse:
+        condition: service_healthy
+
+volumes:
+  clickhouse_data:
