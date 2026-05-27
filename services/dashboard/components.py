@@ -7,8 +7,8 @@ def render_hero() -> None:
     st.markdown(
         """
         <div class="hero-shell">
-          <div class="hero-kicker">AegisTelemetry / Live Operations</div>
-          <div class="hero-title">Gameplay Performance Intelligence</div>
+          <div class="hero-kicker">Aegis Analytics Tool</div>
+          <div class="hero-title">Gameplay Performance Analysis</div>
           <div class="hero-subtitle">
             A real-time analytics command center for server pressure, hot-zone risk, source-schema lineage,
             telemetry quality, and evidence-backed optimization decisions in high-traffic live-service games.

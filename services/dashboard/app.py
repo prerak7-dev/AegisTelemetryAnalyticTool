@@ -62,7 +62,7 @@ def render_kpi_strip(context) -> None:
     )
 
 def main() -> None:
-    st.set_page_config(page_title="AegisTelemetry", layout="wide", initial_sidebar_state="expanded")
+    st.set_page_config(page_title="AegisAnalytics", layout="wide", initial_sidebar_state="expanded")
     inject_global_styles()
     render_hero()
 
@@ -77,10 +77,6 @@ def main() -> None:
         [workspace.label for workspace in WORKSPACES],
         horizontal=True,
         label_visibility="collapsed",
-    )
-    st.markdown(
-        '<div class="folder-tab-note">Folder-style workspaces render one dossier at a time for smoother local performance.</div>',
-        unsafe_allow_html=True,
     )
 
     render_kpi_strip(context)
