@@ -5,29 +5,118 @@
   "input_format": "json",
   "passthrough": false,
   "field_map": {
-    "event_id": ["id", "eventId"],
-    "event_time": ["ts", "timestamp", "eventTimestamp"],
-    "category": ["typeGroup", "category"],
-    "event_type": ["name", "eventName", "event_type"],
-    "priority": ["severityPriority", "priority"],
-    "region": ["regionName", "region"],
-    "server_id": ["shardId", "server.id", "serverId"],
-    "match_id": ["activityId", "matchId", "session.id"],
-    "map_id": ["world.map", "mapName", "map"],
-    "zone_id": ["location.zone", "zone", "poi"],
-    "build_version": ["clientBuild", "serverBuild", "build"],
-    "player_count": ["population.serverPlayers", "playerCount"],
-    "players_nearby": ["population.nearbyPlayers", "playersNearby"],
-    "ability_id": ["gameplay.ability", "ability", "actionId"],
-    "cpu_percent": ["perf.cpuPct", "server.cpu"],
-    "memory_mb": ["perf.memMb", "server.memoryMb"],
-    "server_frame_ms": ["perf.frameMs", "server.frameMs"],
-    "packet_loss_percent": ["net.packetLossPct", "network.packetLoss"],
-    "packet_out_kbps": ["net.outKbps", "network.outKbps"],
-    "desync_count": ["impact.desyncs", "desyncCount"],
-    "rubberband_count": ["impact.rubberbands", "rubberbandCount"],
-    "replicated_objects": ["replication.objects", "net.replicatedObjects"],
-    "physics_events": ["physics.events", "physicsEventCount"]
+    "event_id": [
+      "id",
+      "eventId"
+    ],
+    "event_time": [
+      "ts",
+      "timestamp",
+      "eventTimestamp"
+    ],
+    "category": [
+      "typeGroup",
+      "category"
+    ],
+    "event_type": [
+      "name",
+      "eventName",
+      "event_type"
+    ],
+    "priority": [
+      "severityPriority",
+      "priority"
+    ],
+    "region": [
+      "regionName",
+      "region"
+    ],
+    "server_id": [
+      "shardId",
+      "server.id",
+      "serverId"
+    ],
+    "match_id": [
+      "activityId",
+      "matchId",
+      "session.id"
+    ],
+    "map_id": [
+      "world.map",
+      "mapName",
+      "map"
+    ],
+    "zone_id": [
+      "location.zone",
+      "zone",
+      "poi"
+    ],
+    "build_version": [
+      "clientBuild",
+      "serverBuild",
+      "build"
+    ],
+    "player_count": [
+      "population.serverPlayers",
+      "playerCount"
+    ],
+    "players_nearby": [
+      "population.nearbyPlayers",
+      "playersNearby"
+    ],
+    "ability_id": [
+      "gameplay.ability",
+      "ability",
+      "actionId"
+    ],
+    "cpu_percent": [
+      "perf.cpuPct",
+      "server.cpu"
+    ],
+    "memory_mb": [
+      "perf.memMb",
+      "server.memoryMb"
+    ],
+    "server_frame_ms": [
+      "perf.frameMs",
+      "server.frameMs"
+    ],
+    "packet_loss_percent": [
+      "net.packetLossPct",
+      "network.packetLoss"
+    ],
+    "packet_out_kbps": [
+      "net.outKbps",
+      "network.outKbps"
+    ],
+    "desync_count": [
+      "impact.desyncs",
+      "desyncCount"
+    ],
+    "rubberband_count": [
+      "impact.rubberbands",
+      "rubberbandCount"
+    ],
+    "replicated_objects": [
+      "replication.objects",
+      "net.replicatedObjects"
+    ],
+    "physics_events": [
+      "physics.events",
+      "physicsEventCount"
+    ],
+    "ai_agents_active": [
+      "ai.activeAgents",
+      "ai_agents_active"
+    ],
+    "ai_pathfinding_requests": [
+      "ai.pathRequests",
+      "ai_pathfinding_requests"
+    ],
+    "matchmaking_queue_length": [
+      "matchmaking.queueLength",
+      "matchmaking_queue_length"
+    ]
   },
   "defaults": {
     "category": "gameplay",
@@ -44,7 +133,10 @@
     "desync_count": 0,
     "rubberband_count": 0,
     "replicated_objects": 0,
-    "physics_events": 0
+    "physics_events": 0,
+    "ai_agents_active": 0,
+    "ai_pathfinding_requests": 0,
+    "matchmaking_queue_length": 0
   },
   "event_type_map": {
     "combat.ability_cast": "ability_cast",

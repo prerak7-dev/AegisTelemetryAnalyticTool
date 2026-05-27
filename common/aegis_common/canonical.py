@@ -28,6 +28,9 @@ CANONICAL_OPTIONAL_FIELDS = [
     "rubberband_count",
     "replicated_objects",
     "physics_events",
+    "ai_agents_active",
+    "ai_pathfinding_requests",
+    "matchmaking_queue_length",
     "sequence_id",
     "server_tick",
 ]
@@ -48,6 +51,9 @@ CANONICAL_DEFAULTS = {
     "rubberband_count": 0,
     "replicated_objects": 0,
     "physics_events": 0,
+    "ai_agents_active": 0,
+    "ai_pathfinding_requests": 0,
+    "matchmaking_queue_length": 0,
 }
 
 CANONICAL_NUMERIC_FIELDS = {
@@ -63,6 +69,9 @@ CANONICAL_NUMERIC_FIELDS = {
     "rubberband_count": int,
     "replicated_objects": int,
     "physics_events": int,
+    "ai_agents_active": int,
+    "ai_pathfinding_requests": int,
+    "matchmaking_queue_length": int,
     "sequence_id": int,
     "server_tick": int,
 }

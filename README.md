@@ -363,3 +363,46 @@ docker compose up --build
 ```
 
 The dashboard Docker image now sets `PYTHONPATH=/app` and copies `services/__init__.py`.
+
+
+## Phase 4 recommendation intelligence
+
+This version upgrades incidents from generic recommendations to a richer recommendation engine with ranked issue candidates, owners, evidence, specific actions, investigation steps, validation plans, guardrail metrics, and tradeoffs. Reset ClickHouse because the aggregate schema changed:
+
+```bash
+docker compose down -v --remove-orphans
+docker compose up --build
+```
+
+
+## Phase 4.1 custom recommendation rules
+
+The recommendation engine is now data-driven.
+
+Developers can add/edit issue conditions and solution guidance in JSON files under:
+
+```text
+recommendation_rules/
+```
+
+The active profile is selected with:
+
+```text
+RECOMMENDATION_RULE_PROFILE=default_recommendation_rules
+```
+
+The dashboard includes a `Recommendation Rules` workspace explaining available rule profiles and how to add new rules.
+
+
+## Default out-of-the-box recommendation rules
+
+The default recommendation profile now includes the complete built-in issue set:
+
+- AoE replication overload
+- Physics simulation spike
+- Network packet pressure
+- Local density tick-budget pressure
+- AI pathfinding pressure
+- Memory pressure / allocation churn
+- Regional capacity / matchmaking surge
+- Desync / hit-registration risk

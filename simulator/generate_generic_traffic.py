@@ -86,6 +86,13 @@ def generate_generic_event(sequence_id: int, meltdown: bool = True) -> dict[str,
         },
         "physics": {
             "events": int(clamp(physics, 0, 600))
+        },
+        "ai": {
+            "activeAgents": random.randint(40, 260) if meltdown else random.randint(5, 80),
+            "pathRequests": random.randint(40, 700) if meltdown and random.random() < 0.25 else random.randint(0, 90)
+        },
+        "matchmaking": {
+            "queueLength": random.randint(0, 400) if region == "EU-West" and random.random() < 0.10 else 0
         }
     }
 

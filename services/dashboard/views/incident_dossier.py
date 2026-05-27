@@ -69,9 +69,32 @@ def render(context: DashboardContext) -> None:
             st.write(f"**Recommended action:** {inc['recommended_action']}")
 
             evidence = safe_json_loads(inc["evidence_json"])
-            ranked = evidence.get("ranked_driver_scores", [])
+            ranked = evidence.get("issue_candidates", evidence.get("ranked_driver_scores", []))
             if ranked:
-                st.write("**Ranked attribution signals:**")
-                render_table(pd.DataFrame(ranked), height=220)
+                st.write("**Ranked issue candidates:**")
+                issue_rows = []
+                for item in ranked:
+                    issue_rows.append({
+                        "issue_type": item.get("issue_type", item.get("driver", "unknown")),
+                        "title": item.get("title", item.get("driver", "unknown")),
+                        "owner": item.get("owner", "unknown"),
+                        "score": item.get("score"),
+                        "confidence": item.get("confidence"),
+                        "impact": item.get("impact", item.get("evidence", "")),
+                    })
+                render_table(pd.DataFrame(issue_rows), height=260)
+
+                top_issue = ranked[0]
+                st.write("**Specific recommended actions:**")
+                for action in top_issue.get("recommended_actions", []):
+                    st.write(f"- {action}")
+                st.write("**Investigation steps:**")
+                for step in top_issue.get("investigation_steps", []):
+                    st.write(f"- {step}")
+                st.write("**Validation plan:**")
+                for step in top_issue.get("validation_plan", []):
+                    st.write(f"- {step}")
+                st.write("**Guardrail metrics:**")
+                st.write(", ".join(top_issue.get("guardrail_metrics", [])))
             st.write("**Evidence payload:**")
             st.json(evidence)

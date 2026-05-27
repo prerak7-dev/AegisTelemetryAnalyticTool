@@ -125,6 +125,18 @@
     },
     "source_event_raw": {
       "type": "object"
+    },
+    "ai_agents_active": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "ai_pathfinding_requests": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "matchmaking_queue_length": {
+      "type": "integer",
+      "minimum": 0
     }
   },
   "additionalProperties": true

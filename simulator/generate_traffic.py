@@ -82,6 +82,9 @@ def generate_event(scenario: str, sequence_id: int, invalid_rate: float = 0.0) -
     packet_out = clamp(random.gauss(750, 240), 100, 2500)
     replicated_objects = int(clamp(random.gauss(3000, 1100), 100, 9000))
     physics_events = int(clamp(random.gauss(8, 5), 0, 40))
+    ai_agents_active = int(clamp(random.gauss(25, 18), 0, 120))
+    ai_pathfinding_requests = int(clamp(random.gauss(12, 8), 0, 60))
+    matchmaking_queue_length = 0
     event_type = random.choices(
         ["player_position_sample", "ability_cast", "server_frame_sample", "object_replicated", "physics_event"],
         weights=[4, 3, 2, 1, 1],
@@ -124,6 +127,33 @@ def generate_event(scenario: str, sequence_id: int, invalid_rate: float = 0.0) -
             packet_loss += random.uniform(2, 7)
             frame_ms += random.uniform(6, 20)
 
+    elif scenario == "ai_pathfinding_spike":
+        if random.random() < 0.55:
+            event_type = "ai_pathfinding_request"
+            priority = 1
+            ai_agents_active += random.randint(140, 320)
+            ai_pathfinding_requests += random.randint(250, 900)
+            cpu += random.uniform(18, 38)
+            frame_ms += random.uniform(18, 55)
+
+    elif scenario == "memory_pressure":
+        if random.random() < 0.55:
+            event_type = random.choice(["object_replicated", "physics_event", "ability_cast"])
+            priority = 1
+            replicated_objects += random.randint(6000, 16000)
+            physics_events += random.randint(20, 130)
+            cpu += random.uniform(8, 22)
+            frame_ms += random.uniform(10, 45)
+
+    elif scenario == "network_packet_pressure":
+        if random.random() < 0.60:
+            event_type = "object_replicated"
+            priority = 1
+            replicated_objects += random.randint(12000, 26000)
+            packet_out += random.uniform(5500, 11000)
+            packet_loss += random.uniform(4, 12)
+            frame_ms += random.uniform(8, 28)
+
     elif scenario == "region_login_surge":
         if region == "EU-West":
             category = "matchmaking"
@@ -132,6 +162,7 @@ def generate_event(scenario: str, sequence_id: int, invalid_rate: float = 0.0) -
             player_count += random.randint(100, 240)
             cpu += random.uniform(12, 25)
             packet_out += random.uniform(1200, 2800)
+            matchmaking_queue_length += random.randint(80, 600)
 
     event = base_event(scenario, sequence_id, category, event_type, region, server_id, match_id, map_id, zone_id, priority)
 
@@ -147,7 +178,7 @@ def generate_event(scenario: str, sequence_id: int, invalid_rate: float = 0.0) -
         "players_nearby": int(clamp(nearby, 0, 320)),
         "ability_id": ability_id,
         "cpu_percent": round(clamp(cpu, 0, 100), 2),
-        "memory_mb": round(clamp(random.gauss(4200, 700), 1800, 9000), 2),
+        "memory_mb": round(clamp(random.gauss(7600, 1400), 1800, 12000), 2) if scenario == "memory_pressure" else round(clamp(random.gauss(4200, 700), 1800, 9000), 2),
         "server_frame_ms": round(clamp(frame_ms, 4, 160), 2),
         "packet_loss_percent": round(clamp(packet_loss, 0, 20), 2),
         "packet_out_kbps": round(clamp(packet_out, 10, 12000), 2),
@@ -155,6 +186,9 @@ def generate_event(scenario: str, sequence_id: int, invalid_rate: float = 0.0) -
         "rubberband_count": rubberband,
         "replicated_objects": int(clamp(replicated_objects, 0, 35000)),
         "physics_events": int(clamp(physics_events, 0, 500)),
+        "ai_agents_active": int(clamp(ai_agents_active, 0, 600)),
+        "ai_pathfinding_requests": int(clamp(ai_pathfinding_requests, 0, 1200)),
+        "matchmaking_queue_length": int(clamp(matchmaking_queue_length, 0, 1000)),
     })
 
     # Optional data-quality demo: inject schema-invalid events.
@@ -181,6 +215,9 @@ def main() -> None:
         "physics_spike",
         "region_login_surge",
         "replication_overload",
+        "ai_pathfinding_spike",
+        "memory_pressure",
+        "network_packet_pressure",
     ])
     parser.add_argument("--collector-url", default="http://localhost:8000")
     parser.add_argument("--events-per-second", type=int, default=250)

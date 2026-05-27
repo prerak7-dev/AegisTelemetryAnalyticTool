@@ -78,6 +78,8 @@ services:
       CLICKHOUSE_PASSWORD: aegis_dev_password
       PROCESSOR_GROUP_ID: aegis-processor-local
       WINDOW_GRACE_SECONDS: "8"
+      RECOMMENDATION_RULE_DIR: /app/recommendation_rules
+      RECOMMENDATION_RULE_PROFILE: default_recommendation_rules
     depends_on:
       redpanda:
         condition: service_healthy

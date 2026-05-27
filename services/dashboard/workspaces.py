@@ -11,6 +11,7 @@ from services.dashboard.views import (
     scaling_readiness,
     selected_server,
     source_schemas,
+    recommendation_rules,
 )
 
 @dataclass(frozen=True)
@@ -35,6 +36,7 @@ WORKSPACES: list[Workspace] = [
     Workspace("data_quality", "Data Quality", data_quality.render),
     Workspace("scaling_readiness", "Scaling Readiness", scaling_readiness.render),
     Workspace("source_schemas", "Source Schemas", source_schemas.render),
+    Workspace("recommendation_rules", "Recommendation Rules", recommendation_rules.render),
 ]
 
 def workspace_by_label(label: str) -> Workspace:

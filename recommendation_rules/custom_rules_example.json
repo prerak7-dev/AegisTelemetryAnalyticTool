@@ -1,0 +1,101 @@
+{
+  "profile_name": "custom_rules_example",
+  "version": "1.0.0",
+  "description": "Example custom rule file. Copy this file, edit thresholds/actions, and set RECOMMENDATION_RULE_PROFILE to use it.",
+  "rules": [
+    {
+      "id": "custom_world_boss_pressure",
+      "enabled": true,
+      "title": "Custom world-boss pressure",
+      "owner": "Encounter Design + Server Engineering",
+      "impact": "A world-boss style encounter appears to be creating concentrated server pressure.",
+      "condition": {
+        "all": [
+          {
+            "metric": "active_players",
+            "op": ">=",
+            "value": 180
+          },
+          {
+            "metric": "top_ability_id",
+            "op": "contains",
+            "value": "aoe"
+          },
+          {
+            "metric": "p95_frame",
+            "op": ">=",
+            "value": 55
+          }
+        ]
+      },
+      "score": {
+        "weighted_sum": [
+          {
+            "metric": "active_players",
+            "min": 120,
+            "max": 280,
+            "weight": 0.35
+          },
+          {
+            "metric": "p95_frame",
+            "min": 35,
+            "max": 90,
+            "weight": 0.35
+          },
+          {
+            "metric": "aoe_events",
+            "min": 0,
+            "max": 800,
+            "weight": 0.3
+          }
+        ],
+        "minimum": 0.2
+      },
+      "confidence": {
+        "base": 0.5,
+        "weighted_sum": [
+          {
+            "metric": "active_players",
+            "min": 120,
+            "max": 280,
+            "weight": 0.2
+          },
+          {
+            "metric": "p95_frame",
+            "min": 35,
+            "max": 90,
+            "weight": 0.2
+          }
+        ],
+        "max": 0.92
+      },
+      "evidence_fields": [
+        "active_players",
+        "top_ability_id",
+        "aoe_events",
+        "p95_frame"
+      ],
+      "recommended_actions": [
+        "Reduce world-boss add spawn rate above the local-density threshold.",
+        "Move non-critical boss VFX replication to lower cadence for distant observers."
+      ],
+      "investigation_steps": [
+        "Inspect encounter event timeline around the affected server window.",
+        "Compare boss ability casts against local player density and replicated object count."
+      ],
+      "validation_plan": [
+        "Replay the encounter with reduced add spawn rate and compare p95 frame time.",
+        "Verify encounter difficulty and readability do not regress."
+      ],
+      "guardrail_metrics": [
+        "boss_completion_rate",
+        "boss_time_to_kill",
+        "player_death_rate",
+        "server_frame_ms_p95"
+      ],
+      "tradeoffs": [
+        "Reducing encounter density can improve performance but may affect perceived spectacle."
+      ]
+    }
+  ]
+}

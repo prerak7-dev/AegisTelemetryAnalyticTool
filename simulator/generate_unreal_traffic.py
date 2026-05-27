@@ -69,6 +69,13 @@ def generate_unreal_event(sequence_id: int) -> dict[str, Any]:
         "Physics": {
             "ActiveBodies": random.randint(60, 400) if hot else random.randint(0, 40)
         },
+        "AI": {
+            "ActiveAgents": random.randint(80, 320) if hot else random.randint(0, 80),
+            "PathRequests": random.randint(120, 850) if hot and random.random() < 0.25 else random.randint(0, 80)
+        },
+        "Matchmaking": {
+            "QueueLength": random.randint(0, 450) if hot and random.random() < 0.10 else 0
+        },
         "Sequence": sequence_id
     }
 

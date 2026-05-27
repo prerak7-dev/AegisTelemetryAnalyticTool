@@ -5,29 +5,97 @@
   "input_format": "json",
   "passthrough": false,
   "field_map": {
-    "event_id": ["EventGuid", "EventId"],
-    "event_time": ["UtcTime", "Timestamp"],
-    "category": ["TelemetryCategory"],
-    "event_type": ["EventName"],
-    "priority": ["Priority"],
-    "region": ["Fleet.Region"],
-    "server_id": ["Server.InstanceId", "PodName", "ServerId"],
-    "match_id": ["Match.MatchId", "SessionId"],
-    "map_id": ["World.MapName"],
-    "zone_id": ["World.ZoneName", "World.StreamingCell"],
-    "build_version": ["Build.Changelist", "Build.Version"],
-    "player_count": ["Server.NumPlayers"],
-    "players_nearby": ["Gameplay.NearbyPlayers"],
-    "ability_id": ["Gameplay.AbilityId", "Gameplay.ActionId"],
-    "cpu_percent": ["Host.CpuPct"],
-    "memory_mb": ["Host.MemoryMb"],
-    "server_frame_ms": ["Frame.ServerFrameMs", "Frame.GameThreadMs"],
-    "packet_loss_percent": ["Net.PacketLossPct"],
-    "packet_out_kbps": ["Net.OutKbps"],
-    "desync_count": ["Net.DesyncCount"],
-    "rubberband_count": ["Net.CorrectionCount"],
-    "replicated_objects": ["Replication.ReplicatedActorCount", "Net.ReplicatedObjects"],
-    "physics_events": ["Physics.ActiveBodies", "Physics.Events"]
+    "event_id": [
+      "EventGuid",
+      "EventId"
+    ],
+    "event_time": [
+      "UtcTime",
+      "Timestamp"
+    ],
+    "category": [
+      "TelemetryCategory"
+    ],
+    "event_type": [
+      "EventName"
+    ],
+    "priority": [
+      "Priority"
+    ],
+    "region": [
+      "Fleet.Region"
+    ],
+    "server_id": [
+      "Server.InstanceId",
+      "PodName",
+      "ServerId"
+    ],
+    "match_id": [
+      "Match.MatchId",
+      "SessionId"
+    ],
+    "map_id": [
+      "World.MapName"
+    ],
+    "zone_id": [
+      "World.ZoneName",
+      "World.StreamingCell"
+    ],
+    "build_version": [
+      "Build.Changelist",
+      "Build.Version"
+    ],
+    "player_count": [
+      "Server.NumPlayers"
+    ],
+    "players_nearby": [
+      "Gameplay.NearbyPlayers"
+    ],
+    "ability_id": [
+      "Gameplay.AbilityId",
+      "Gameplay.ActionId"
+    ],
+    "cpu_percent": [
+      "Host.CpuPct"
+    ],
+    "memory_mb": [
+      "Host.MemoryMb"
+    ],
+    "server_frame_ms": [
+      "Frame.ServerFrameMs",
+      "Frame.GameThreadMs"
+    ],
+    "packet_loss_percent": [
+      "Net.PacketLossPct"
+    ],
+    "packet_out_kbps": [
+      "Net.OutKbps"
+    ],
+    "desync_count": [
+      "Net.DesyncCount"
+    ],
+    "rubberband_count": [
+      "Net.CorrectionCount"
+    ],
+    "replicated_objects": [
+      "Replication.ReplicatedActorCount",
+      "Net.ReplicatedObjects"
+    ],
+    "physics_events": [
+      "Physics.ActiveBodies",
+      "Physics.Events"
+    ],
+    "ai_agents_active": [
+      "AI.ActiveAgents",
+      "Gameplay.ActiveAI"
+    ],
+    "ai_pathfinding_requests": [
+      "AI.PathRequests",
+      "AI.NavQueries"
+    ],
+    "matchmaking_queue_length": [
+      "Matchmaking.QueueLength"
+    ]
   },
   "defaults": {
     "category": "gameplay",
@@ -44,7 +112,10 @@
     "desync_count": 0,
     "rubberband_count": 0,
     "replicated_objects": 0,
-    "physics_events": 0
+    "physics_events": 0,
+    "ai_agents_active": 0,
+    "ai_pathfinding_requests": 0,
+    "matchmaking_queue_length": 0
   },
   "event_type_map": {
     "Gameplay.AbilityCast": "ability_cast",
