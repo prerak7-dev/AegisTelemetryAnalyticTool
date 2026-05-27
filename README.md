@@ -157,3 +157,209 @@ The dashboard now includes a server explorer. After generating realtime traffic,
 - Analysis time window
 
 The dashboard filters Command Center, Incident Deep Dive, Data Quality, and Scaling Readiness views to the selected server. A dedicated `Selected Server Analytics` tab shows per-zone frame pressure, hot-zone risk, and likely pressure sources for that server.
+
+
+## Phase 2.5 performance and design polish
+
+This version improves dashboard responsiveness and presentation quality.
+
+Performance changes:
+
+- Replaced Streamlit tabs with a folder-style workspace selector so only one view renders at a time.
+- Added short-TTL ClickHouse query caching.
+- Live refresh is off by default.
+- Added manual `Refresh now`.
+- Added refresh interval selector.
+- Added table row limit.
+- Bounded large queries with selected time window and SQL limits.
+
+Design changes:
+
+- Premium dark operations-dossier look.
+- Folder/paper-inspired workspace navigation.
+- Paper-style metric cards.
+- Dark red/gold accents.
+- More polished portfolio-ready dashboard presentation.
+
+
+## Phase 3 schema adaptability
+
+This version adds a canonical telemetry mapping layer.
+
+The collector can now ingest:
+
+- Native AegisTelemetry events
+- Generic live-service multiplayer telemetry
+- Unreal-style dedicated server/network telemetry
+
+Source profiles live in:
+
+```text
+source_schemas/
+```
+
+New endpoints:
+
+```text
+GET  /v1/source-profiles
+POST /v1/events
+POST /v1/events/{source_profile}
+```
+
+Demo alternate schema ingestion:
+
+```bash
+cd simulator
+python generate_generic_traffic.py --collector-url http://localhost:8000 --events-per-second 500 --duration-sec 120
+python generate_unreal_traffic.py --collector-url http://localhost:8000 --events-per-second 500 --duration-sec 120
+```
+
+The dashboard includes a `Source Schemas` workspace to inspect supported adapters and observed source profiles.
+
+
+## Phase 3.1 source profile filtering
+
+This version makes `source_profile` a first-class analytics dimension across aggregates, incidents, quality failures, and dashboard filters.
+
+When running multiple generators at once, you can now filter the dashboard by:
+
+- All source profiles
+- `aegis_default`
+- `generic_live_service`
+- `unreal_multiplayer`
+
+Because ClickHouse table schemas changed, reset local volumes:
+
+```bash
+docker compose down -v
+docker compose up --build
+```
+
+
+## ClickHouse migration patch
+
+If upgrading from an older local volume, the dashboard may report:
+
+```text
+Unknown expression identifier 'source_profile'
+```
+
+This version includes a `clickhouse-migrate` service that adds the missing `source_profile` columns to existing ClickHouse tables.
+
+Run:
+
+```bash
+docker compose down
+docker compose up --build
+```
+
+A full reset is optional:
+
+```bash
+docker compose down -v
+docker compose up --build
+```
+
+
+## FastAPI 422 collector fix
+
+If the simulator returns:
+
+```text
+422 Client Error: Unprocessable Entity
+```
+
+rebuild this patched version:
+
+```bash
+docker compose down
+docker compose up --build
+```
+
+The collector now explicitly accepts arbitrary JSON request bodies for `/v1/events` and `/v1/events/{source_profile}`.
+
+
+## ClickHouse migration retry fix
+
+If `clickhouse-migrate` exits with code `210`, run:
+
+```bash
+docker compose down --remove-orphans
+docker compose up --build
+```
+
+This version retries ClickHouse migrations until the native client port is ready. For a completely clean demo database, run:
+
+```bash
+docker compose down -v
+docker compose up --build
+```
+
+
+## Local reset instead of migration service
+
+This version removes the `clickhouse-migrate` service. When upgrading schemas locally, reset the ClickHouse volume:
+
+```bash
+docker compose down -v --remove-orphans
+docker compose up --build
+```
+
+This recreates the ClickHouse tables from `infra/clickhouse/init.sql` using the current schema.
+
+
+## Phase 3.2 dashboard visual redesign
+
+This version redesigns the Streamlit dashboard to use a sharper, more professional visual system inspired by the attached Guerrilla-style careers layout.
+
+Key updates:
+
+- Removed rounded corners from tabs, cards, alerts, metrics, and data surfaces
+- Switched to a sharp dark-slate + light-panel palette with stronger contrast
+- Added premium Altair time-series charts with a colorblind-safe series palette
+- Improved table legibility and navigation with clearer borders and heights
+- Updated the hero/header and workspace navigation to a more editorial, studio-like layout
+
+
+## Phase 3.3 dashboard refinement
+
+This version refines the sharp dashboard design with:
+
+- tighter typography
+- stronger sidebar hierarchy
+- operational status banner
+- severity-coded incident cards
+- clearer incident evidence drilldown
+- improved chart/table consistency
+- square-edged executive dashboard layout
+
+
+## Phase 3.4 modular dashboard architecture
+
+The dashboard has been refactored from one large `app.py` into smaller modules:
+
+- `config.py`
+- `query.py`
+- `sidebar.py`
+- `styles.py`
+- `components.py`
+- `charts.py`
+- `schemas.py`
+- `workspaces.py`
+- `views/*.py`
+
+To add or remove dashboard workspaces, edit `services/dashboard/workspaces.py`.
+To add new charts, prefer `services/dashboard/charts.py`.
+To add new source schemas, add JSON profiles under `source_schemas/`.
+
+
+## Dashboard import fix
+
+If Streamlit reports `ModuleNotFoundError: No module named 'services'`, rebuild this version:
+
+```bash
+docker compose down --remove-orphans
+docker compose up --build
+```
+
+The dashboard Docker image now sets `PYTHONPATH=/app` and copies `services/__init__.py`.

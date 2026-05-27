@@ -30,6 +30,7 @@ WINDOW_GRACE_SECONDS = int(os.getenv("WINDOW_GRACE_SECONDS", "8"))
 class WindowState:
     window_start: datetime
     window_end: datetime
+    source_profile: str
     region: str
     server_id: str
     map_id: str
@@ -97,6 +98,7 @@ class WindowState:
         return (
             self.window_start,
             self.window_end,
+            self.source_profile,
             self.region,
             self.server_id,
             self.map_id,
@@ -129,6 +131,7 @@ class WindowState:
         severity = "critical" if hot_risk >= 80 or float(m["p99_frame"]) >= 80 else "warning"
 
         evidence = {
+            "source_profile": self.source_profile,
             "window_start": self.window_start.isoformat(),
             "window_end": self.window_end.isoformat(),
             "active_players": int(m["active_players"]),
@@ -147,6 +150,7 @@ class WindowState:
             "detected_at": datetime.now(timezone.utc),
             "incident_id": f"inc_{uuid.uuid4().hex[:12]}",
             "severity": severity,
+            "source_profile": self.source_profile,
             "region": self.region,
             "server_id": self.server_id,
             "map_id": self.map_id,
@@ -217,6 +221,7 @@ def raw_event_row(event: dict[str, Any]) -> tuple:
         event.get("event_id", ""),
         event.get("category", ""),
         event.get("event_type", ""),
+        event.get("source_profile", "unknown"),
         int(event.get("priority") or 1),
         event.get("region", ""),
         event.get("server_id", ""),
@@ -253,6 +258,7 @@ def quality_failure_row(payload: dict[str, Any]) -> tuple:
         payload.get("error", "unknown validation error"),
         event.get("category", "unknown"),
         event.get("event_type", "unknown"),
+        payload.get("source_profile") or event.get("source_profile", "unknown"),
         event.get("region", "unknown"),
         event.get("server_id", "unknown"),
         json.dumps(payload),
@@ -289,6 +295,7 @@ def main() -> None:
                 window_end = window_start + timedelta(seconds=WINDOW_SECONDS)
                 key = (
                     window_start,
+                    event.get("source_profile", "unknown"),
                     event.get("region", "unknown"),
                     event.get("server_id", "unknown"),
                     event.get("map_id", "unknown"),
@@ -300,11 +307,12 @@ def main() -> None:
                     windows[key] = WindowState(
                         window_start=window_start,
                         window_end=window_end,
-                        region=key[1],
-                        server_id=key[2],
-                        map_id=key[3],
-                        zone_id=key[4],
-                        build_version=key[5],
+                        source_profile=key[1],
+                        region=key[2],
+                        server_id=key[3],
+                        map_id=key[4],
+                        zone_id=key[5],
+                        build_version=key[6],
                     )
                 windows[key].update(event)
 
@@ -318,11 +326,11 @@ def main() -> None:
                     raw_buffer,
                     column_names=[
                         "event_time", "ingest_time", "event_id", "category", "event_type",
-                        "priority", "region", "server_id", "match_id", "map_id", "zone_id",
-                        "build_version", "player_count", "players_nearby", "ability_id",
-                        "cpu_percent", "memory_mb", "server_frame_ms", "packet_loss_percent",
-                        "packet_out_kbps", "desync_count", "rubberband_count",
-                        "replicated_objects", "physics_events", "raw_json"
+                        "source_profile", "priority", "region", "server_id", "match_id",
+                        "map_id", "zone_id", "build_version", "player_count", "players_nearby",
+                        "ability_id", "cpu_percent", "memory_mb", "server_frame_ms",
+                        "packet_loss_percent", "packet_out_kbps", "desync_count",
+                        "rubberband_count", "replicated_objects", "physics_events", "raw_json"
                     ],
                 )
                 raw_buffer.clear()
@@ -333,7 +341,7 @@ def main() -> None:
                     quality_buffer,
                     column_names=[
                         "failed_at", "event_id", "error", "category", "event_type",
-                        "region", "server_id", "raw_json"
+                        "source_profile", "region", "server_id", "raw_json"
                     ],
                 )
                 quality_buffer.clear()
@@ -354,6 +362,7 @@ def main() -> None:
                         inc["detected_at"],
                         inc["incident_id"],
                         inc["severity"],
+                        inc["source_profile"],
                         inc["region"],
                         inc["server_id"],
                         inc["map_id"],
@@ -373,8 +382,8 @@ def main() -> None:
                     "agg_zone_30s",
                     agg_rows,
                     column_names=[
-                        "window_start", "window_end", "region", "server_id", "map_id",
-                        "zone_id", "build_version", "events", "active_players",
+                        "window_start", "window_end", "source_profile", "region", "server_id",
+                        "map_id", "zone_id", "build_version", "events", "active_players",
                         "ability_casts", "aoe_events", "physics_events",
                         "replicated_objects_p95", "cpu_p95", "server_frame_ms_avg",
                         "server_frame_ms_p95", "server_frame_ms_p99", "packet_loss_p95",
@@ -387,9 +396,10 @@ def main() -> None:
                     "incidents",
                     incident_rows,
                     column_names=[
-                        "detected_at", "incident_id", "severity", "region", "server_id",
-                        "map_id", "zone_id", "build_version", "symptom", "likely_driver",
-                        "confidence", "player_impact", "recommended_action", "evidence_json"
+                        "detected_at", "incident_id", "severity", "source_profile", "region",
+                        "server_id", "map_id", "zone_id", "build_version", "symptom",
+                        "likely_driver", "confidence", "player_impact", "recommended_action",
+                        "evidence_json"
                     ],
                 )
                 producer.flush(timeout=2)

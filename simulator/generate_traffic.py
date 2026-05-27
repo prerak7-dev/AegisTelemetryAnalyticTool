@@ -169,6 +169,8 @@ def generate_event(scenario: str, sequence_id: int, invalid_rate: float = 0.0) -
 def send_batch(collector_url: str, batch: list[dict[str, Any]]) -> None:
     url = collector_url.rstrip("/") + "/v1/events"
     response = requests.post(url, json=batch, timeout=10)
+    if response.status_code >= 400:
+        print(f"Collector returned {response.status_code}: {response.text[:1000]}")
     response.raise_for_status()
 
 def main() -> None:

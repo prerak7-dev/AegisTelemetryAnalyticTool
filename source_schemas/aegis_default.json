@@ -1,0 +1,15 @@
+{
+  "profile_name": "aegis_default",
+  "description": "Native AegisTelemetry canonical event format. This mapper leaves the incoming event mostly unchanged.",
+  "version": "1.0.0",
+  "input_format": "json",
+  "passthrough": true,
+  "field_map": {},
+  "defaults": {
+    "category": "gameplay",
+    "priority": 1,
+    "build_version": "unknown"
+  },
+  "event_type_map": {},
+  "value_maps": {}
+}

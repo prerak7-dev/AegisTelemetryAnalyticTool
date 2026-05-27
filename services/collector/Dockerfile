@@ -2,6 +2,7 @@ FROM python:3.11-slim
 WORKDIR /app
 COPY common /app/common
 COPY schemas /app/schemas
+COPY source_schemas /app/source_schemas
 COPY services/collector/requirements.txt /app/requirements.txt
 RUN pip install --no-cache-dir -r /app/requirements.txt
 COPY services/collector /app/services/collector

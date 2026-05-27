@@ -16,35 +16,116 @@
     "build_version"
   ],
   "properties": {
-    "event_id": {"type": "string"},
-    "event_time": {"type": "string", "format": "date-time"},
-    "ingest_time": {"type": "string", "format": "date-time"},
+    "event_id": {
+      "type": "string"
+    },
+    "event_time": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "ingest_time": {
+      "type": "string",
+      "format": "date-time"
+    },
     "category": {
       "type": "string",
-      "enum": ["gameplay", "server", "network", "matchmaking", "incident"]
+      "enum": [
+        "gameplay",
+        "server",
+        "network",
+        "matchmaking",
+        "incident"
+      ]
     },
-    "event_type": {"type": "string"},
-    "priority": {"type": "integer", "minimum": 0, "maximum": 3},
-    "region": {"type": "string"},
-    "server_id": {"type": "string"},
-    "match_id": {"type": "string"},
-    "map_id": {"type": "string"},
-    "zone_id": {"type": "string"},
-    "build_version": {"type": "string"},
-    "player_count": {"type": "integer", "minimum": 0},
-    "players_nearby": {"type": "integer", "minimum": 0},
-    "ability_id": {"type": "string"},
-    "cpu_percent": {"type": "number", "minimum": 0, "maximum": 100},
-    "memory_mb": {"type": "number", "minimum": 0},
-    "server_frame_ms": {"type": "number", "minimum": 0},
-    "packet_loss_percent": {"type": "number", "minimum": 0, "maximum": 100},
-    "packet_out_kbps": {"type": "number", "minimum": 0},
-    "desync_count": {"type": "integer", "minimum": 0},
-    "rubberband_count": {"type": "integer", "minimum": 0},
-    "replicated_objects": {"type": "integer", "minimum": 0},
-    "physics_events": {"type": "integer", "minimum": 0},
-    "sequence_id": {"type": "integer", "minimum": 0},
-    "server_tick": {"type": "integer", "minimum": 0}
+    "event_type": {
+      "type": "string"
+    },
+    "priority": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 3
+    },
+    "region": {
+      "type": "string"
+    },
+    "server_id": {
+      "type": "string"
+    },
+    "match_id": {
+      "type": "string"
+    },
+    "map_id": {
+      "type": "string"
+    },
+    "zone_id": {
+      "type": "string"
+    },
+    "build_version": {
+      "type": "string"
+    },
+    "player_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "players_nearby": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "ability_id": {
+      "type": "string"
+    },
+    "cpu_percent": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "memory_mb": {
+      "type": "number",
+      "minimum": 0
+    },
+    "server_frame_ms": {
+      "type": "number",
+      "minimum": 0
+    },
+    "packet_loss_percent": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "packet_out_kbps": {
+      "type": "number",
+      "minimum": 0
+    },
+    "desync_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "rubberband_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "replicated_objects": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "physics_events": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "sequence_id": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "server_tick": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "source_profile": {
+      "type": "string"
+    },
+    "source_event_raw": {
+      "type": "object"
+    }
   },
   "additionalProperties": true
 }

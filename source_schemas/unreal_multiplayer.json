@@ -1,0 +1,65 @@
+{
+  "profile_name": "unreal_multiplayer",
+  "description": "Unreal-style dedicated server/network telemetry with fields inspired by net driver, replication, frame, world, and gameplay event concepts.",
+  "version": "1.0.0",
+  "input_format": "json",
+  "passthrough": false,
+  "field_map": {
+    "event_id": ["EventGuid", "EventId"],
+    "event_time": ["UtcTime", "Timestamp"],
+    "category": ["TelemetryCategory"],
+    "event_type": ["EventName"],
+    "priority": ["Priority"],
+    "region": ["Fleet.Region"],
+    "server_id": ["Server.InstanceId", "PodName", "ServerId"],
+    "match_id": ["Match.MatchId", "SessionId"],
+    "map_id": ["World.MapName"],
+    "zone_id": ["World.ZoneName", "World.StreamingCell"],
+    "build_version": ["Build.Changelist", "Build.Version"],
+    "player_count": ["Server.NumPlayers"],
+    "players_nearby": ["Gameplay.NearbyPlayers"],
+    "ability_id": ["Gameplay.AbilityId", "Gameplay.ActionId"],
+    "cpu_percent": ["Host.CpuPct"],
+    "memory_mb": ["Host.MemoryMb"],
+    "server_frame_ms": ["Frame.ServerFrameMs", "Frame.GameThreadMs"],
+    "packet_loss_percent": ["Net.PacketLossPct"],
+    "packet_out_kbps": ["Net.OutKbps"],
+    "desync_count": ["Net.DesyncCount"],
+    "rubberband_count": ["Net.CorrectionCount"],
+    "replicated_objects": ["Replication.ReplicatedActorCount", "Net.ReplicatedObjects"],
+    "physics_events": ["Physics.ActiveBodies", "Physics.Events"]
+  },
+  "defaults": {
+    "category": "gameplay",
+    "priority": 1,
+    "build_version": "unknown",
+    "player_count": 0,
+    "players_nearby": 0,
+    "ability_id": "",
+    "cpu_percent": 0,
+    "memory_mb": 0,
+    "server_frame_ms": 0,
+    "packet_loss_percent": 0,
+    "packet_out_kbps": 0,
+    "desync_count": 0,
+    "rubberband_count": 0,
+    "replicated_objects": 0,
+    "physics_events": 0
+  },
+  "event_type_map": {
+    "Gameplay.AbilityCast": "ability_cast",
+    "Gameplay.AoEAbilityCast": "aoe_ability_cast",
+    "Server.FrameSample": "server_frame_sample",
+    "Net.DriverSample": "network_sample",
+    "Replication.ActorBurst": "object_replicated",
+    "Physics.Burst": "physics_event"
+  },
+  "value_maps": {
+    "category": {
+      "Gameplay": "gameplay",
+      "Server": "server",
+      "Network": "network",
+      "Matchmaking": "matchmaking"
+    }
+  }
+}

@@ -1,0 +1,66 @@
+{
+  "profile_name": "generic_live_service",
+  "description": "Generic live-service multiplayer telemetry export using common names such as ts, regionName, shardId, activityId, location.zone, perf.frameMs, net.packetLossPct.",
+  "version": "1.0.0",
+  "input_format": "json",
+  "passthrough": false,
+  "field_map": {
+    "event_id": ["id", "eventId"],
+    "event_time": ["ts", "timestamp", "eventTimestamp"],
+    "category": ["typeGroup", "category"],
+    "event_type": ["name", "eventName", "event_type"],
+    "priority": ["severityPriority", "priority"],
+    "region": ["regionName", "region"],
+    "server_id": ["shardId", "server.id", "serverId"],
+    "match_id": ["activityId", "matchId", "session.id"],
+    "map_id": ["world.map", "mapName", "map"],
+    "zone_id": ["location.zone", "zone", "poi"],
+    "build_version": ["clientBuild", "serverBuild", "build"],
+    "player_count": ["population.serverPlayers", "playerCount"],
+    "players_nearby": ["population.nearbyPlayers", "playersNearby"],
+    "ability_id": ["gameplay.ability", "ability", "actionId"],
+    "cpu_percent": ["perf.cpuPct", "server.cpu"],
+    "memory_mb": ["perf.memMb", "server.memoryMb"],
+    "server_frame_ms": ["perf.frameMs", "server.frameMs"],
+    "packet_loss_percent": ["net.packetLossPct", "network.packetLoss"],
+    "packet_out_kbps": ["net.outKbps", "network.outKbps"],
+    "desync_count": ["impact.desyncs", "desyncCount"],
+    "rubberband_count": ["impact.rubberbands", "rubberbandCount"],
+    "replicated_objects": ["replication.objects", "net.replicatedObjects"],
+    "physics_events": ["physics.events", "physicsEventCount"]
+  },
+  "defaults": {
+    "category": "gameplay",
+    "priority": 1,
+    "build_version": "unknown",
+    "player_count": 0,
+    "players_nearby": 0,
+    "ability_id": "",
+    "cpu_percent": 0,
+    "memory_mb": 0,
+    "server_frame_ms": 0,
+    "packet_loss_percent": 0,
+    "packet_out_kbps": 0,
+    "desync_count": 0,
+    "rubberband_count": 0,
+    "replicated_objects": 0,
+    "physics_events": 0
+  },
+  "event_type_map": {
+    "combat.ability_cast": "ability_cast",
+    "combat.aoe_cast": "aoe_ability_cast",
+    "server.frame": "server_frame_sample",
+    "network.sample": "network_sample",
+    "match.session_start": "session_started",
+    "physics.burst": "physics_event",
+    "replication.sample": "object_replicated"
+  },
+  "value_maps": {
+    "category": {
+      "combat": "gameplay",
+      "server": "server",
+      "network": "network",
+      "matchmaking": "matchmaking"
+    }
+  }
+}

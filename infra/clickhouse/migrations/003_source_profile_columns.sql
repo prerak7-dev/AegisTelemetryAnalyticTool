@@ -84,7 +84,6 @@ ENGINE = MergeTree
 PARTITION BY toYYYYMMDD(detected_at)
 ORDER BY (detected_at, severity, source_profile, region, server_id, zone_id);
 
-
 CREATE TABLE IF NOT EXISTS aegis_telemetry.data_quality_failures
 (
     failed_at DateTime64(3, 'UTC'),
@@ -100,3 +99,15 @@ CREATE TABLE IF NOT EXISTS aegis_telemetry.data_quality_failures
 ENGINE = MergeTree
 PARTITION BY toYYYYMMDD(failed_at)
 ORDER BY (failed_at, region, server_id, event_type);
+
+ALTER TABLE aegis_telemetry.raw_events
+    ADD COLUMN IF NOT EXISTS source_profile LowCardinality(String) DEFAULT 'legacy_unknown' AFTER event_type;
+
+ALTER TABLE aegis_telemetry.agg_zone_30s
+    ADD COLUMN IF NOT EXISTS source_profile LowCardinality(String) DEFAULT 'legacy_unknown' AFTER window_end;
+
+ALTER TABLE aegis_telemetry.incidents
+    ADD COLUMN IF NOT EXISTS source_profile LowCardinality(String) DEFAULT 'legacy_unknown' AFTER severity;
+
+ALTER TABLE aegis_telemetry.data_quality_failures
+    ADD COLUMN IF NOT EXISTS source_profile LowCardinality(String) DEFAULT 'legacy_unknown' AFTER event_type;
