@@ -452,3 +452,20 @@ The Incident Dossier can now filter by both:
 - rule ID / likely driver
 
 Rule ID options are loaded from configured recommendation rule profiles and observed incidents, so built-in and custom rules are available to analysts.
+
+
+## Phase 6 incident timeline
+
+The dashboard now includes an `Incident Timeline` workspace.
+
+This view lets analysts select an incident and replay the telemetry before/during/after the trigger window for the same source profile, server, map, and zone.
+
+It shows:
+
+- root-cause sequence table
+- density/frame/risk timelines
+- AoE/physics/network pressure timelines
+- player-impact timelines
+- memory/CPU/AI timelines
+- top event type and top ability ID context
+- recommendation changes over time
