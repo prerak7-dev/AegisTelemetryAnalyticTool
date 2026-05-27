@@ -1,0 +1,27 @@
+{
+  "sample_id": "desync_hit_registration_sample",
+  "description": "Player-impact events rising with frame and network pressure.",
+  "expected_issue_ids": [
+    "desync_hit_registration_risk"
+  ],
+  "metrics": {
+    "active_players": 125,
+    "p95_frame": 64,
+    "p99_frame": 93,
+    "cpu_p95": 74,
+    "memory_p95": 4400,
+    "packet_loss_p95": 4.2,
+    "packet_out_p95": 4200,
+    "replicated_p95": 10800,
+    "aoe_events": 25,
+    "physics_events": 20,
+    "ai_agents_active_p95": 0,
+    "ai_pathfinding_requests": 0,
+    "matchmaking_events": 0,
+    "matchmaking_queue_p95": 0,
+    "desync_events": 34,
+    "rubberband_events": 52,
+    "top_ability_id": "rifle_burst",
+    "top_event_type": "network_sample"
+  }
+}

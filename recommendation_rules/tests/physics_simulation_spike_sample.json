@@ -1,0 +1,27 @@
+{
+  "sample_id": "physics_simulation_spike_sample",
+  "description": "Physics-heavy combat burst with CPU and p99 frame pressure.",
+  "expected_issue_ids": [
+    "physics_simulation_spike"
+  ],
+  "metrics": {
+    "active_players": 110,
+    "p95_frame": 63,
+    "p99_frame": 111,
+    "cpu_p95": 94,
+    "memory_p95": 5600,
+    "packet_loss_p95": 1.2,
+    "packet_out_p95": 2300,
+    "replicated_p95": 6500,
+    "aoe_events": 30,
+    "physics_events": 390,
+    "ai_agents_active_p95": 20,
+    "ai_pathfinding_requests": 30,
+    "matchmaking_events": 0,
+    "matchmaking_queue_p95": 0,
+    "desync_events": 2,
+    "rubberband_events": 4,
+    "top_ability_id": "explosive_barrel_chain",
+    "top_event_type": "physics_event"
+  }
+}

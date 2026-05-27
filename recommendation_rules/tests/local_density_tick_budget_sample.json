@@ -1,0 +1,27 @@
+{
+  "sample_id": "local_density_tick_budget_sample",
+  "description": "Crowded zone with broad simulation pressure but no single extreme subsystem.",
+  "expected_issue_ids": [
+    "local_density_tick_budget"
+  ],
+  "metrics": {
+    "active_players": 215,
+    "p95_frame": 61,
+    "p99_frame": 91,
+    "cpu_p95": 84,
+    "memory_p95": 5100,
+    "packet_loss_p95": 1.4,
+    "packet_out_p95": 3600,
+    "replicated_p95": 7900,
+    "aoe_events": 70,
+    "physics_events": 55,
+    "ai_agents_active_p95": 35,
+    "ai_pathfinding_requests": 80,
+    "matchmaking_events": 0,
+    "matchmaking_queue_p95": 0,
+    "desync_events": 10,
+    "rubberband_events": 17,
+    "top_ability_id": "standard_melee",
+    "top_event_type": "ability_cast"
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "sample_id": "aoe_replication_overload_sample",
+  "description": "High AoE density with replicated object and packet-out pressure.",
+  "expected_issue_ids": [
+    "aoe_replication_overload"
+  ],
+  "metrics": {
+    "active_players": 190,
+    "p95_frame": 72,
+    "p99_frame": 106,
+    "cpu_p95": 88,
+    "memory_p95": 5200,
+    "packet_loss_p95": 2.1,
+    "packet_out_p95": 9200,
+    "replicated_p95": 21000,
+    "aoe_events": 650,
+    "physics_events": 90,
+    "ai_agents_active_p95": 30,
+    "ai_pathfinding_requests": 40,
+    "matchmaking_events": 0,
+    "matchmaking_queue_p95": 0,
+    "desync_events": 8,
+    "rubberband_events": 12,
+    "top_ability_id": "aoe_storm_pulse",
+    "top_event_type": "aoe_ability_cast"
+  }
+}

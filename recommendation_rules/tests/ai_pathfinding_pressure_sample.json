@@ -1,0 +1,27 @@
+{
+  "sample_id": "ai_pathfinding_pressure_sample",
+  "description": "Large AI/nav query spike with high CPU and frame pressure.",
+  "expected_issue_ids": [
+    "ai_pathfinding_pressure"
+  ],
+  "metrics": {
+    "active_players": 120,
+    "p95_frame": 74,
+    "p99_frame": 116,
+    "cpu_p95": 96,
+    "memory_p95": 5700,
+    "packet_loss_p95": 0.8,
+    "packet_out_p95": 1800,
+    "replicated_p95": 4200,
+    "aoe_events": 20,
+    "physics_events": 50,
+    "ai_agents_active_p95": 260,
+    "ai_pathfinding_requests": 860,
+    "matchmaking_events": 0,
+    "matchmaking_queue_p95": 0,
+    "desync_events": 4,
+    "rubberband_events": 8,
+    "top_ability_id": "",
+    "top_event_type": "ai_pathfinding_request"
+  }
+}

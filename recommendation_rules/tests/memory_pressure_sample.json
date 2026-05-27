@@ -1,0 +1,27 @@
+{
+  "sample_id": "memory_pressure_sample",
+  "description": "High memory pressure with p99 frame and spawn/replication pressure.",
+  "expected_issue_ids": [
+    "memory_pressure"
+  ],
+  "metrics": {
+    "active_players": 135,
+    "p95_frame": 57,
+    "p99_frame": 102,
+    "cpu_p95": 78,
+    "memory_p95": 9600,
+    "packet_loss_p95": 1.1,
+    "packet_out_p95": 4600,
+    "replicated_p95": 14500,
+    "aoe_events": 60,
+    "physics_events": 150,
+    "ai_agents_active_p95": 10,
+    "ai_pathfinding_requests": 15,
+    "matchmaking_events": 0,
+    "matchmaking_queue_p95": 0,
+    "desync_events": 3,
+    "rubberband_events": 6,
+    "top_ability_id": "summon_temp_objects",
+    "top_event_type": "object_replicated"
+  }
+}

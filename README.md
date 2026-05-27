@@ -406,3 +406,49 @@ The default recommendation profile now includes the complete built-in issue set:
 - Memory pressure / allocation churn
 - Regional capacity / matchmaking surge
 - Desync / hit-registration risk
+
+
+## Phase 5 rule testing and replay
+
+Recommendation rules now have a test/replay layer.
+
+New sample metrics live under:
+
+```text
+recommendation_rules/tests/
+```
+
+Run rule tests:
+
+```bash
+python tools/test_recommendation_rules.py --profile default_recommendation_rules
+```
+
+Preview one sample:
+
+```bash
+python tools/preview_recommendation.py recommendation_rules/tests/ai_pathfinding_pressure_sample.json
+```
+
+The dashboard includes a `Rule Testing` workspace that lets developers preview expected vs actual issue candidates for rule profiles and sample telemetry windows.
+
+
+## Phase 5.1 incident severity filter
+
+The Incident Dossier now includes a severity filter:
+
+- All severities
+- Critical only
+- Warnings only
+
+It also shows severity distribution for the selected source/region/server/time-window scope.
+
+
+## Phase 5.2 incident rule ID filter
+
+The Incident Dossier can now filter by both:
+
+- incident severity
+- rule ID / likely driver
+
+Rule ID options are loaded from configured recommendation rule profiles and observed incidents, so built-in and custom rules are available to analysts.

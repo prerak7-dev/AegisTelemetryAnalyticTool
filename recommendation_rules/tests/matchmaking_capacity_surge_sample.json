@@ -1,0 +1,27 @@
+{
+  "sample_id": "matchmaking_capacity_surge_sample",
+  "description": "Regional session-start and queue pressure indicating capacity surge.",
+  "expected_issue_ids": [
+    "matchmaking_or_capacity_surge"
+  ],
+  "metrics": {
+    "active_players": 170,
+    "p95_frame": 49,
+    "p99_frame": 69,
+    "cpu_p95": 70,
+    "memory_p95": 4300,
+    "packet_loss_p95": 0.7,
+    "packet_out_p95": 5200,
+    "replicated_p95": 6200,
+    "aoe_events": 10,
+    "physics_events": 5,
+    "ai_agents_active_p95": 0,
+    "ai_pathfinding_requests": 0,
+    "matchmaking_events": 260,
+    "matchmaking_queue_p95": 390,
+    "desync_events": 0,
+    "rubberband_events": 2,
+    "top_ability_id": "",
+    "top_event_type": "session_started"
+  }
+}
