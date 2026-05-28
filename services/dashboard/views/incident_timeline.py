@@ -1,16 +1,27 @@
 from __future__ import annotations
 
 import json
-from datetime import datetime
-from typing import Any
+import os
 
 import pandas as pd
 import streamlit as st
 
-from services.dashboard.charts import render_multi_metric_timeline, render_timeseries_chart
-from services.dashboard.components import render_paper_metric, render_table
+from aegis_common.timeline_stage_engine import (
+    add_derived_timeline_metrics,
+    build_timeline_sequence,
+    get_active_timeline_stage_profile,
+    load_timeline_stage_profiles,
+)
+from services.dashboard.charts import render_multi_metric_timeline
+from services.dashboard.components import render_paper_metric, render_table, render_timeline_sequence_cards
 from services.dashboard.context import DashboardContext
 from services.dashboard.query import combined_filter_sql, query_df, quote_sql
+
+DEFAULT_STAGE_PROFILE = os.getenv("TIMELINE_STAGE_PROFILE", "default_timeline_stages")
+INCIDENT_SESSION_KEY = "incident_timeline_selected_incident_id"
+PROFILE_SESSION_KEY = "incident_timeline_selected_stage_profile"
+PROFILE_WIDGET_KEY = "incident_timeline_stage_profile_widget"
+AUTO_FOLLOW_SESSION_KEY = "incident_timeline_auto_follow_latest"
 
 def safe_json_loads(value: str) -> dict:
     try:
@@ -21,91 +32,62 @@ def safe_json_loads(value: str) -> dict:
 def sql_dt(value: str) -> str:
     return f"parseDateTime64BestEffort({quote_sql(value)})"
 
-def incident_label(row: pd.Series) -> str:
+def incident_label_from_row(row: pd.Series) -> str:
     return (
         f"{row['detected_at']} · {str(row['severity']).upper()} · "
         f"{row['likely_driver']} · {row['server_id']} · {row['zone_id']}"
     )
 
-def first_time_where(df: pd.DataFrame, condition, label: str, detail_builder) -> dict[str, Any]:
-    if df.empty:
-        return {"stage": label, "time": "—", "details": "No timeline data available."}
+def default_profile_index(profile_names: list[str]) -> int:
+    """Choose the real default profile instead of the first alphabetic profile.
 
-    matched = df[condition(df)]
-    if matched.empty:
-        return {"stage": label, "time": "—", "details": "Signal not observed in replay window."}
+    The previous implementation sorted profiles alphabetically and used index 0.
+    That meant `custom_timeline_stages_example` could be selected by default,
+    causing every incident to show only the three example stages.
+    """
+    if DEFAULT_STAGE_PROFILE in profile_names:
+        return profile_names.index(DEFAULT_STAGE_PROFILE)
+    if "default_timeline_stages" in profile_names:
+        return profile_names.index("default_timeline_stages")
+    return 0
 
-    row = matched.iloc[0]
-    return {
-        "stage": label,
-        "time": row.get("window_start", "—"),
-        "details": detail_builder(row),
-    }
+def stable_incident_id_selection(incidents: pd.DataFrame) -> str:
+    """Return a stable incident_id selection across Streamlit reruns.
 
-def build_development_sequence(timeline: pd.DataFrame, selected_incident: pd.Series, evidence: dict) -> pd.DataFrame:
-    if timeline.empty:
-        return pd.DataFrame([
-            {"stage": "Incident starts", "time": selected_incident.get("detected_at", "—"), "details": "No aggregate replay data found for this incident scope."}
-        ])
+    Live refresh can insert newer incidents at the top of the dataframe. Using
+    index=0 or a non-keyed label selectbox causes the selected incident to jump
+    to the newest option. This function keeps the previously selected incident_id
+    while it remains available.
+    """
+    incident_ids = incidents["incident_id"].astype(str).tolist()
+    if not incident_ids:
+        return ""
 
-    timeline = timeline.sort_values("window_start").copy()
-    max_players = float(timeline["active_players"].max() or 0)
-    max_subsystem_pressure = float(timeline["subsystem_pressure"].max() or 0)
-    max_frame = float(timeline["server_frame_ms_p95"].max() or 0)
-    max_impact = float(timeline["player_impact_events"].max() or 0)
+    auto_follow_latest = st.checkbox(
+        "Auto-follow latest incident",
+        value=st.session_state.get(AUTO_FOLLOW_SESSION_KEY, False),
+        key=AUTO_FOLLOW_SESSION_KEY,
+        help="When enabled, the replay selector follows the newest incident after each refresh. Keep this off to pin the selected incident while live refresh is running.",
+    )
 
-    sequence = []
+    if auto_follow_latest:
+        st.session_state[INCIDENT_SESSION_KEY] = incident_ids[0]
+    else:
+        previous = st.session_state.get(INCIDENT_SESSION_KEY)
+        if previous not in incident_ids:
+            st.session_state[INCIDENT_SESSION_KEY] = incident_ids[0]
 
-    incident_window = evidence.get("window_start") or selected_incident.get("detected_at", "—")
-    sequence.append({
-        "stage": "Incident starts",
-        "time": incident_window,
-        "details": (
-            f"{selected_incident.get('severity', 'unknown')} incident triggered by "
-            f"{selected_incident.get('likely_driver', 'unknown')} on "
-            f"{selected_incident.get('server_id', 'unknown')} / {selected_incident.get('zone_id', 'unknown')}."
+    selected_id = st.selectbox(
+        "Incident to replay",
+        incident_ids,
+        index=incident_ids.index(st.session_state[INCIDENT_SESSION_KEY]),
+        key=INCIDENT_SESSION_KEY,
+        format_func=lambda incident_id: incident_label_from_row(
+            incidents[incidents["incident_id"].astype(str) == str(incident_id)].iloc[0]
         ),
-    })
+    )
 
-    sequence.append(first_time_where(
-        timeline,
-        lambda df: df["active_players"] >= max(1, max_players * 0.75),
-        "Player density rises",
-        lambda row: f"active_players={int(row['active_players'])}; source_profile={row['source_profile']}; zone={row['zone_id']}",
-    ))
-
-    sequence.append(first_time_where(
-        timeline,
-        lambda df: df["subsystem_pressure"] >= max(1, max_subsystem_pressure * 0.70),
-        "AoE / physics / network signal spikes",
-        lambda row: (
-            f"aoe_events={int(row['aoe_events'])}, physics_events={int(row['physics_events'])}, "
-            f"replicated_objects_p95={float(row['replicated_objects_p95']):.0f}, "
-            f"packet_out_kbps_p95={float(row.get('packet_out_kbps_p95', 0)):.1f}"
-        ),
-    ))
-
-    sequence.append(first_time_where(
-        timeline,
-        lambda df: (df["server_frame_ms_p95"] >= 50) | (df["server_frame_ms_p95"] >= max(1, max_frame * 0.75)),
-        "Server frame time degrades",
-        lambda row: f"p95={float(row['server_frame_ms_p95']):.1f}ms; p99={float(row['server_frame_ms_p99']):.1f}ms; cpu_p95={float(row['cpu_p95']):.1f}%",
-    ))
-
-    sequence.append(first_time_where(
-        timeline,
-        lambda df: df["player_impact_events"] >= max(1, max_impact * 0.50),
-        "Desync / rubberband impact appears",
-        lambda row: f"desync={int(row['desync_events'])}; rubberband={int(row['rubberband_events'])}; packet_loss_p95={float(row['packet_loss_p95']):.2f}%",
-    ))
-
-    sequence.append({
-        "stage": "Recommendation triggers",
-        "time": selected_incident.get("detected_at", "—"),
-        "details": selected_incident.get("recommended_action", "No recommendation text found."),
-    })
-
-    return pd.DataFrame(sequence)
+    return str(selected_id)
 
 def render_incident_scope(selected_incident: pd.Series, evidence: dict) -> None:
     c1, c2, c3, c4, c5 = st.columns(5)
@@ -132,8 +114,34 @@ def render(context: DashboardContext) -> None:
     st.subheader("Historical Incident Replay and Root-Cause Timeline")
     st.caption("Replay how a detected incident developed before, during, and after the trigger window for the same source/server/map/zone.")
 
-    replay_minutes_before = st.selectbox("Minutes before incident", [5, 10, 15, 30, 60], index=2)
-    replay_minutes_after = st.selectbox("Minutes after incident", [5, 10, 15, 30, 60], index=2)
+    stage_profiles = load_timeline_stage_profiles()
+    profile_names = sorted(stage_profiles.keys()) or ["default_timeline_stages"]
+
+    # Keep the selected profile stable without writing to the same key used by
+    # the selectbox widget. Writing to the widget key and also passing a default
+    # value/index causes Streamlit's warning:
+    # "The widget with key ... was created with a default value but also had its
+    # value set via the Session State API."
+    preferred_profile = st.session_state.get(PROFILE_SESSION_KEY)
+    if preferred_profile not in profile_names:
+        preferred_profile = profile_names[default_profile_index(profile_names)]
+
+    controls_col1, controls_col2, controls_col3 = st.columns(3)
+    with controls_col1:
+        replay_minutes_before = st.selectbox("Minutes before incident", [5, 10, 15, 30, 60], index=2)
+    with controls_col2:
+        replay_minutes_after = st.selectbox("Minutes after incident", [5, 10, 15, 30, 60], index=2)
+    with controls_col3:
+        selected_stage_profile_name = st.selectbox(
+            "Timeline stage profile",
+            profile_names,
+            index=profile_names.index(preferred_profile),
+            key=PROFILE_WIDGET_KEY,
+            help="Defaults to default_timeline_stages. Custom/example profiles are available for testing but are not selected automatically.",
+        )
+        st.session_state[PROFILE_SESSION_KEY] = selected_stage_profile_name
+
+    stage_profile = stage_profiles.get(selected_stage_profile_name) or get_active_timeline_stage_profile()
 
     incident_filter = combined_filter_sql(
         filters.selected_source_profile,
@@ -169,12 +177,11 @@ def render(context: DashboardContext) -> None:
         st.info("No incidents are available for the current source/region/server/time-window filters.")
         return
 
-    incident_options = {
-        incident_label(row): index
-        for index, row in incidents.iterrows()
-    }
-    selected_label = st.selectbox("Incident to replay", list(incident_options.keys()))
-    selected_incident = incidents.loc[incident_options[selected_label]]
+    incidents = incidents.copy()
+    incidents["incident_id"] = incidents["incident_id"].astype(str)
+
+    selected_incident_id = stable_incident_id_selection(incidents)
+    selected_incident = incidents[incidents["incident_id"] == selected_incident_id].iloc[0]
     evidence = safe_json_loads(selected_incident["evidence_json"])
 
     render_incident_scope(selected_incident, evidence)
@@ -230,19 +237,26 @@ def render(context: DashboardContext) -> None:
         st.warning("No aggregate timeline data found for the selected incident scope.")
         return
 
-    timeline = timeline.copy()
-    timeline["player_impact_events"] = timeline["desync_events"] + timeline["rubberband_events"]
-    timeline["subsystem_pressure"] = (
-        timeline["aoe_events"]
-        + timeline["physics_events"]
-        + (timeline["replicated_objects_p95"] / 100.0)
-        + (timeline.get("packet_out_kbps_p95", 0) / 100.0)
-        + timeline.get("ai_pathfinding_requests", 0)
+    timeline = add_derived_timeline_metrics(timeline)
+
+    st.markdown(
+        f"<div class='timeline-note'>Using timeline stage profile "
+        f"<b>{stage_profile.get('profile_name', selected_stage_profile_name)}</b> "
+        f"for incident rule <b>{selected_incident.get('likely_driver', 'unknown')}</b>.</div>",
+        unsafe_allow_html=True,
     )
 
     st.markdown('<div class="section-label">Root-cause sequence</div>', unsafe_allow_html=True)
-    sequence = build_development_sequence(timeline, selected_incident, evidence)
-    render_table(sequence, height=300)
+    sequence = build_timeline_sequence(
+        timeline,
+        incident=selected_incident.to_dict(),
+        evidence=evidence,
+        profile=stage_profile,
+    )
+    render_timeline_sequence_cards(sequence)
+
+    with st.expander("Root-cause sequence table"):
+        render_table(sequence, height=340)
 
     st.markdown('<div class="section-label">Metric timeline before / during / after incident</div>', unsafe_allow_html=True)
     chart_col1, chart_col2 = st.columns(2)
@@ -327,3 +341,6 @@ def render(context: DashboardContext) -> None:
 
     with st.expander("Selected incident evidence payload"):
         st.json(evidence)
+
+    with st.expander("Active timeline stage profile"):
+        st.json(stage_profile)

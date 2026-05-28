@@ -7,8 +7,8 @@ def render_hero() -> None:
     st.markdown(
         """
         <div class="hero-shell">
-          <div class="hero-kicker">AegisTelemetry / Live Operations</div>
-          <div class="hero-title">Gameplay Performance Intelligence</div>
+          <div class="hero-kicker">Aegis Telemetry Analytics Tool</div>
+          <div class="hero-title">Gameplay Performance Analysis</div>
           <div class="hero-subtitle">
             A real-time analytics command center for server pressure, hot-zone risk, source-schema lineage,
             telemetry quality, and evidence-backed optimization decisions in high-traffic live-service games.
@@ -89,3 +89,49 @@ def render_incident_card(inc: pd.Series) -> None:
         """,
         unsafe_allow_html=True,
     )
+
+def _escape_html(value: object) -> str:
+    import html
+    return html.escape(str(value if value is not None else ""))
+
+def render_timeline_sequence_cards(sequence_df: pd.DataFrame) -> None:
+    """Render root-cause sequence as reliable wrapped cards.
+
+    This intentionally renders each card through its own `st.markdown` call.
+    Rendering one large joined HTML blob can cause Streamlit/Markdown to display
+    later cards as raw escaped HTML in some versions, especially when the page
+    reruns during live refresh.
+    """
+    if sequence_df.empty:
+        st.info("No root-cause sequence stages available.")
+        return
+
+    st.markdown('<div class="timeline-sequence-stack">', unsafe_allow_html=True)
+
+    for _, row in sequence_df.iterrows():
+        matched = bool(row.get("matched", False))
+        status = "matched" if matched else "not observed"
+        css_class = "" if matched else " unmatched"
+
+        stage = _escape_html(row.get("stage", "Unknown stage"))
+        stage_id = _escape_html(row.get("stage_id", "unknown_stage"))
+        time_value = _escape_html(row.get("time", "—"))
+        mode = _escape_html(row.get("mode", "unknown"))
+        details = _escape_html(row.get("details", ""))
+
+        card_html = f"""
+        <div class="timeline-stage-card{css_class}">
+          <div class="timeline-stage-topline">
+            <span>{stage_id}</span>
+            <span>{time_value}</span>
+            <span>{mode}</span>
+            <span class="timeline-stage-status">{status}</span>
+          </div>
+          <div class="timeline-stage-title">{stage}</div>
+          <div class="timeline-stage-detail">{details}</div>
+        </div>
+        """
+
+        st.markdown(card_html, unsafe_allow_html=True)
+
+    st.markdown('</div>', unsafe_allow_html=True)

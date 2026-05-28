@@ -1,0 +1,371 @@
+{
+  "profile_name": "default_timeline_stages",
+  "version": "1.0.0",
+  "description": "Default configurable timeline stages for incident replay. Developers can add, remove, or reorder stages without editing Python.",
+  "stages": [
+    {
+      "id": "incident_starts",
+      "label": "Incident starts",
+      "mode": "incident_start",
+      "description": "The incident trigger point selected by the analyst.",
+      "detail_fields": [
+        "severity",
+        "likely_driver",
+        "server_id",
+        "zone_id"
+      ],
+      "fallback_detail": "Incident trigger point."
+    },
+    {
+      "id": "player_density_rises",
+      "label": "Player density rises",
+      "mode": "first_match",
+      "condition": {
+        "any": [
+          {
+            "metric": "active_players",
+            "op": ">=",
+            "value": 120
+          },
+          {
+            "metric": "active_players_ratio",
+            "op": ">=",
+            "value": 0.75
+          }
+        ]
+      },
+      "detail_fields": [
+        "active_players",
+        "source_profile",
+        "zone_id"
+      ],
+      "fallback_detail": "Player-density threshold was not reached in this replay window."
+    },
+    {
+      "id": "aoe_replication_spikes",
+      "label": "AoE / replication pressure spikes",
+      "mode": "first_match",
+      "condition": {
+        "any": [
+          {
+            "metric": "aoe_events",
+            "op": ">=",
+            "value": 120
+          },
+          {
+            "metric": "replicated_objects_p95",
+            "op": ">=",
+            "value": 9000
+          },
+          {
+            "metric": "replicated_objects_ratio",
+            "op": ">=",
+            "value": 0.7
+          }
+        ]
+      },
+      "detail_fields": [
+        "aoe_events",
+        "replicated_objects_p95",
+        "top_ability_id",
+        "top_event_type"
+      ],
+      "fallback_detail": "AoE/replication spike was not observed in this replay window."
+    },
+    {
+      "id": "physics_spikes",
+      "label": "Physics simulation pressure spikes",
+      "mode": "first_match",
+      "condition": {
+        "any": [
+          {
+            "metric": "physics_events",
+            "op": ">=",
+            "value": 100
+          },
+          {
+            "metric": "physics_events_ratio",
+            "op": ">=",
+            "value": 0.7
+          }
+        ]
+      },
+      "detail_fields": [
+        "physics_events",
+        "cpu_p95",
+        "server_frame_ms_p99",
+        "top_event_type"
+      ],
+      "fallback_detail": "Physics pressure did not cross the configured stage threshold."
+    },
+    {
+      "id": "network_packet_pressure_rises",
+      "label": "Network packet pressure rises",
+      "mode": "first_match",
+      "condition": {
+        "any": [
+          {
+            "metric": "packet_loss_p95",
+            "op": ">=",
+            "value": 4
+          },
+          {
+            "metric": "packet_out_kbps_p95",
+            "op": ">=",
+            "value": 7000
+          },
+          {
+            "metric": "packet_out_ratio",
+            "op": ">=",
+            "value": 0.7
+          }
+        ]
+      },
+      "detail_fields": [
+        "packet_loss_p95",
+        "packet_out_kbps_p95",
+        "replicated_objects_p95"
+      ],
+      "fallback_detail": "Network packet pressure did not cross the configured stage threshold."
+    },
+    {
+      "id": "server_frame_degrades",
+      "label": "Server frame time degrades",
+      "mode": "first_match",
+      "condition": {
+        "any": [
+          {
+            "metric": "server_frame_ms_p95",
+            "op": ">=",
+            "value": 50
+          },
+          {
+            "metric": "server_frame_p95_ratio",
+            "op": ">=",
+            "value": 0.75
+          },
+          {
+            "metric": "hot_zone_risk_score",
+            "op": ">=",
+            "value": 70
+          }
+        ]
+      },
+      "detail_fields": [
+        "server_frame_ms_p95",
+        "server_frame_ms_p99",
+        "cpu_p95",
+        "hot_zone_risk_score"
+      ],
+      "fallback_detail": "Frame-time degradation was not observed in this replay window."
+    },
+    {
+      "id": "player_impact_appears",
+      "label": "Desync / rubberband impact appears",
+      "mode": "first_match",
+      "condition": {
+        "any": [
+          {
+            "metric": "player_impact_events",
+            "op": ">=",
+            "value": 10
+          },
+          {
+            "metric": "player_impact_ratio",
+            "op": ">=",
+            "value": 0.5
+          }
+        ]
+      },
+      "detail_fields": [
+        "desync_events",
+        "rubberband_events",
+        "packet_loss_p95"
+      ],
+      "fallback_detail": "Player-impact signals were not observed in this replay window."
+    },
+    {
+      "id": "ai_pathfinding_spikes",
+      "label": "AI pathfinding pressure spikes",
+      "mode": "first_match",
+      "condition": {
+        "any": [
+          {
+            "metric": "ai_pathfinding_requests",
+            "op": ">=",
+            "value": 250
+          },
+          {
+            "metric": "ai_agents_active_p95",
+            "op": ">=",
+            "value": 120
+          },
+          {
+            "metric": "ai_pathfinding_ratio",
+            "op": ">=",
+            "value": 0.7
+          }
+        ]
+      },
+      "detail_fields": [
+        "ai_pathfinding_requests",
+        "ai_agents_active_p95",
+        "cpu_p95",
+        "server_frame_ms_p95"
+      ],
+      "fallback_detail": "AI/pathfinding pressure did not cross the configured stage threshold."
+    },
+    {
+      "id": "memory_pressure_rises",
+      "label": "Memory pressure rises",
+      "mode": "first_match",
+      "condition": {
+        "any": [
+          {
+            "metric": "memory_mb_p95",
+            "op": ">=",
+            "value": 8000
+          },
+          {
+            "metric": "memory_ratio",
+            "op": ">=",
+            "value": 0.75
+          }
+        ]
+      },
+      "detail_fields": [
+        "memory_mb_p95",
+        "server_frame_ms_p99",
+        "replicated_objects_p95"
+      ],
+      "fallback_detail": "Memory pressure did not cross the configured stage threshold."
+    },
+    {
+      "id": "matchmaking_queue_rises",
+      "label": "Matchmaking / capacity pressure rises",
+      "mode": "first_match",
+      "condition": {
+        "any": [
+          {
+            "metric": "matchmaking_events",
+            "op": ">=",
+            "value": 180
+          },
+          {
+            "metric": "matchmaking_queue_p95",
+            "op": ">=",
+            "value": 120
+          },
+          {
+            "metric": "matchmaking_queue_ratio",
+            "op": ">=",
+            "value": 0.7
+          }
+        ]
+      },
+      "detail_fields": [
+        "matchmaking_events",
+        "matchmaking_queue_p95",
+        "active_players",
+        "packet_out_kbps_p95"
+      ],
+      "fallback_detail": "Matchmaking/capacity pressure did not cross the configured stage threshold."
+    },
+    {
+      "id": "recommendation_triggers",
+      "label": "Recommendation triggers",
+      "mode": "recommendation",
+      "description": "The recommendation generated for the selected incident.",
+      "detail_fields": [
+        "recommended_action"
+      ],
+      "fallback_detail": "No recommendation text was found for the selected incident."
+    }
+  ],
+  "default_sequence": [
+    "incident_starts",
+    "player_density_rises",
+    "aoe_replication_spikes",
+    "physics_spikes",
+    "network_packet_pressure_rises",
+    "server_frame_degrades",
+    "player_impact_appears",
+    "recommendation_triggers"
+  ],
+  "rule_sequences": {
+    "aoe_replication_overload": [
+      "incident_starts",
+      "player_density_rises",
+      "aoe_replication_spikes",
+      "network_packet_pressure_rises",
+      "server_frame_degrades",
+      "player_impact_appears",
+      "recommendation_triggers"
+    ],
+    "physics_simulation_spike": [
+      "incident_starts",
+      "player_density_rises",
+      "physics_spikes",
+      "server_frame_degrades",
+      "player_impact_appears",
+      "recommendation_triggers"
+    ],
+    "network_packet_pressure": [
+      "incident_starts",
+      "network_packet_pressure_rises",
+      "aoe_replication_spikes",
+      "server_frame_degrades",
+      "player_impact_appears",
+      "recommendation_triggers"
+    ],
+    "local_density_tick_budget": [
+      "incident_starts",
+      "player_density_rises",
+      "aoe_replication_spikes",
+      "physics_spikes",
+      "network_packet_pressure_rises",
+      "server_frame_degrades",
+      "player_impact_appears",
+      "recommendation_triggers"
+    ],
+    "ai_pathfinding_pressure": [
+      "incident_starts",
+      "player_density_rises",
+      "ai_pathfinding_spikes",
+      "server_frame_degrades",
+      "player_impact_appears",
+      "recommendation_triggers"
+    ],
+    "memory_pressure": [
+      "incident_starts",
+      "memory_pressure_rises",
+      "aoe_replication_spikes",
+      "physics_spikes",
+      "server_frame_degrades",
+      "player_impact_appears",
+      "recommendation_triggers"
+    ],
+    "matchmaking_or_capacity_surge": [
+      "incident_starts",
+      "matchmaking_queue_rises",
+      "player_density_rises",
+      "network_packet_pressure_rises",
+      "server_frame_degrades",
+      "recommendation_triggers"
+    ],
+    "desync_hit_registration_risk": [
+      "incident_starts",
+      "network_packet_pressure_rises",
+      "server_frame_degrades",
+      "player_impact_appears",
+      "recommendation_triggers"
+    ],
+    "unclassified_performance_pressure": [
+      "incident_starts",
+      "player_density_rises",
+      "server_frame_degrades",
+      "player_impact_appears",
+      "recommendation_triggers"
+    ]
+  }
+}

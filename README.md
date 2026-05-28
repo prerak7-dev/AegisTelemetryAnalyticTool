@@ -469,3 +469,174 @@ It shows:
 - memory/CPU/AI timelines
 - top event type and top ability ID context
 - recommendation changes over time
+
+
+## Phase 6.1 configurable timeline stages
+
+Incident Timeline root-cause stages are now configurable through JSON profiles under:
+
+```text
+timeline_stages/
+```
+
+The default profile includes rule-specific stage sequences for all out-of-the-box recommendation rules:
+
+- AoE replication overload
+- Physics simulation spike
+- Network packet pressure
+- Local density tick-budget pressure
+- AI pathfinding pressure
+- Memory pressure / allocation churn
+- Regional capacity / matchmaking surge
+- Desync / hit-registration risk
+- Unclassified performance pressure
+
+The dashboard also includes a `Timeline Stages` workspace for developers.
+
+
+## Phase 6.2 incident timeline selection fix
+
+The Incident Timeline now:
+
+- defaults to `default_timeline_stages` instead of the alphabetically first profile
+- keeps the selected incident pinned across live refreshes using stable `incident_id` session state
+- adds an optional `Auto-follow latest incident` checkbox for analysts who want the newest incident selected automatically
+
+This fixes the issue where every incident appeared to show the same three custom example stages.
+
+
+## Phase 6.3 timeline wrapping and grouped navigation
+
+The Incident Timeline root-cause sequence now renders as wrapped cards, with the original table kept in an expander. Low-contrast blue text is forced to white for readability.
+
+Dashboard workspaces are now grouped into dropdown sections:
+
+- Operations
+- Incidents
+- Rules & Replay
+- Data & Schemas
+
+The navigation uses native Streamlit widgets and CSS transitions for smooth, performant behavior during live refresh.
+
+
+## Phase 6.4 two-tier tab navigation
+
+Workspace navigation now uses a two-level tab bar instead of dropdowns.
+
+Top row:
+
+- Operations
+- Incidents
+- Rules & Replay
+- Data & Schemas
+
+Lower row shows the workspaces inside the selected group.
+
+The extra “Workspace Navigation / Grouped Operations Dossiers” description block has been removed.
+
+
+## Phase 6.5 distinct sub-navigation
+
+The two-tier workspace navigation now clearly distinguishes the lower row as sub-navigation using a smaller scale, inset strip, accent bar, and lighter active state.
+
+
+## Phase 6.6 hover-expanded workspace subnavigation
+
+Workspace navigation now uses a hover-expanded two-level menu. Top-level groups are always visible, and hovering over a group reveals its sub-workspaces. Moving outside collapses the sub-navigation automatically.
+
+The workspace content region now shows a breadcrumb title such as `Operations [separator image] Command Center`.
+
+
+## Phase 6.7 incident timeline session state warning fix
+
+Fixed the Streamlit warning caused by manually assigning the same session-state key used by the Incident Timeline stage-profile selectbox.
+
+
+## Phase 6.8 hover navigation polish
+
+Hover subnavigation now uses dark text on the light dropdown background, selected subnav items are indicated only with a blue underline, the breadcrumb uses a custom white SVG arrow, and subnav links target the same browser tab.
+
+
+## Phase 6.9 state-driven workspace navigation
+
+Workspace navigation now uses Streamlit widget state instead of HTML links/query parameters. Switching tabs no longer opens a new browser tab or performs browser-level page navigation; the dashboard stays on the same page and updates the selected workspace area.
+
+
+## Phase 6.10 state-driven hover-style navigation
+
+Navigation now combines hover/dropdown styling with state-driven workspace switching. It uses no HTML links or query parameters, so switching workspaces no longer opens a new tab or performs browser-level navigation. The subnavigation is collapsed by default and expands on hover.
+
+
+## Phase 6.11 robust state-driven hover navigation
+
+Navigation now uses a keyed Streamlit container plus marker-based CSS selectors so the subnavigation is hidden by default and appears only while hovering the top navigation region. Workspace switching remains state-driven with no links, hrefs, query parameters, or browser-level navigation.
+
+
+## Phase 6.12 final state-driven hover navigation fix
+
+Navigation CSS now targets the Streamlit radio groups by accessibility label instead of fragile wrapper/sibling selectors. The subnavigation is hidden by default and appears only on hover, while workspace switching remains state-driven with one-click updates through radio callbacks.
+
+
+## Phase 6.13 per-group state-driven hover navigation
+
+Navigation now renders one hidden subnavigation radio per main group, so hovering over any group shows that group’s own subnav. The subnav remains open while moving from the top tab into the dropdown, and workspace switching remains state-driven with no links, hrefs, query parameters, or browser-level navigation.
+
+
+## Phase 6.14 subnavigation gap and width fix
+
+The hover subnavigation now sits directly beneath the primary group tab, includes a small hover bridge so it does not disappear while moving the cursor downward, and shrink-wraps to the last subnav tab instead of stretching across the page.
+
+
+## Phase 6.15 navigation positioning and clickability fix
+
+The hover subnav is now positioned directly beneath the primary nav with no visual gap. A small invisible hover bridge keeps it open while moving the cursor down, and the dropdown shrink-wraps to its tabs instead of extending across the page.
+
+
+## Phase 6.16 flow-based subnav fix
+
+The hover subnav no longer uses pixel-based absolute positioning. It now expands in normal document flow directly under the hovered main tab, removing the gap and making subnav tabs clickable while keeping state-driven navigation.
+
+
+## Phase 6.17 selected main-tab hover text fix
+
+Fixed the selected main navigation tab hover state so the text turns dark gray/black when the selected tab background becomes light. This prevents white-on-white text while preserving the blue underline.
+
+
+## Phase 6.18 left navigation dropdown font fix
+
+Sidebar/left-navigation dropdown text now matches the workspace tab styling: dark gray text, uppercase lettering, stronger font weight, compact tracking, square borders, and a light tab-like dropdown background.
+
+
+## Phase 6.19 remove top white dashboard strip
+
+Removed the default Streamlit top header/toolbar strip and aligned the app shell background with the dashboard background so the hero starts cleanly without a white band above it.
+
+
+## Phase 6.20 global dropdown style
+
+Dropdown/selectbox typography and field styling now match the left-navigation dropdown across all workspaces. All dropdown values and opened menu options use dark gray uppercase text, stronger weight, compact tracking, square borders, and a light tab-like background.
+
+
+## Phase 6.21 incident timeline HTML render fix
+
+Fixed raw HTML appearing in the Incident Timeline root-cause sequence by rendering each timeline card with its own safe `st.markdown(..., unsafe_allow_html=True)` call instead of joining all cards into one large HTML block.
+
+
+## Phase 6.22 subnavigation button fix
+
+Subnavigation items now use Streamlit buttons instead of per-group radios. This fixes the inactive-group edge case where clicking a group's already-selected/default subnav item did not fire a state change. Navigation remains state-driven with no links, hrefs, query parameters, or browser-level navigation.
+
+
+## Phase 6.23 horizontal button subnav fix
+
+Button-based subnavigation now renders horizontally again using Streamlit columns plus CSS that keeps the subnav as a single horizontal tab strip. This preserves the one-click state-driven button behavior from Phase 6.22 while restoring the original horizontal dropdown layout.
+
+
+## Phase 6.24 Streamlit column gap fix
+
+Fixed the dashboard crash caused by `st.columns(..., gap=None)`. Streamlit only accepts `"small"`, `"medium"`, or `"large"`, so the subnav now uses `gap="small"` while CSS keeps the horizontal tab strip visually tight.
+
+
+## Phase 6.25 navigation label width fix
+
+Navigation labels now use content-weighted column sizing so longer labels like `Recommendation Rules` are not clipped. Additional CSS prevents Streamlit/BaseWeb button internals from truncating tab text.

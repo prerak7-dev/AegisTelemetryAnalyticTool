@@ -6,7 +6,7 @@ from services.dashboard.components import render_hero, render_paper_metric, rend
 from services.dashboard.query import query_df
 from services.dashboard.sidebar import render_sidebar
 from services.dashboard.styles import inject_global_styles
-from services.dashboard.workspaces import WORKSPACES, workspace_by_label
+from services.dashboard.navigation import render_workspace_navigation
 
 def render_kpi_strip(context) -> None:
     filters = context.filters
@@ -72,22 +72,12 @@ def main() -> None:
         st.error(f"Could not connect to ClickHouse yet: {exc}")
         st.stop()
 
-    workspace_label = st.radio(
-        "Workspace",
-        [workspace.label for workspace in WORKSPACES],
-        horizontal=True,
-        label_visibility="collapsed",
-    )
-    st.markdown(
-        '<div class="folder-tab-note">Folder-style workspaces render one dossier at a time for smoother local performance.</div>',
-        unsafe_allow_html=True,
-    )
+    workspace = render_workspace_navigation()
 
     render_kpi_strip(context)
 
     st.divider()
 
-    workspace = workspace_by_label(workspace_label)
     workspace.renderer(context)
 
 if __name__ == "__main__":

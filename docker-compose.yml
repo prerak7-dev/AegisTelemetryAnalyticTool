@@ -80,6 +80,8 @@ services:
       WINDOW_GRACE_SECONDS: "8"
       RECOMMENDATION_RULE_DIR: /app/recommendation_rules
       RECOMMENDATION_RULE_PROFILE: default_recommendation_rules
+      TIMELINE_STAGE_DIR: /app/timeline_stages
+      TIMELINE_STAGE_PROFILE: default_timeline_stages
     depends_on:
       redpanda:
         condition: service_healthy

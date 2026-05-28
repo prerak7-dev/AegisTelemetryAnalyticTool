@@ -1,0 +1,64 @@
+{
+  "profile_name": "custom_timeline_stages_example",
+  "version": "1.0.0",
+  "description": "Example-only custom timeline stage profile. It intentionally contains a short three-stage sequence to demonstrate customization. It should not be the default profile for production incident replay.",
+  "stages": [
+    {
+      "id": "incident_starts",
+      "label": "Incident starts",
+      "mode": "incident_start",
+      "detail_fields": [
+        "severity",
+        "likely_driver",
+        "server_id",
+        "zone_id"
+      ]
+    },
+    {
+      "id": "custom_boss_phase_begins",
+      "label": "Custom boss phase pressure begins",
+      "mode": "first_match",
+      "condition": {
+        "all": [
+          {
+            "metric": "top_ability_id",
+            "op": "contains",
+            "value": "aoe"
+          },
+          {
+            "metric": "active_players",
+            "op": ">=",
+            "value": 160
+          }
+        ]
+      },
+      "detail_fields": [
+        "top_ability_id",
+        "active_players",
+        "aoe_events",
+        "server_frame_ms_p95"
+      ],
+      "fallback_detail": "Custom boss phase pressure was not observed."
+    },
+    {
+      "id": "recommendation_triggers",
+      "label": "Recommendation triggers",
+      "mode": "recommendation",
+      "detail_fields": [
+        "recommended_action"
+      ]
+    }
+  ],
+  "default_sequence": [
+    "incident_starts",
+    "custom_boss_phase_begins",
+    "recommendation_triggers"
+  ],
+  "rule_sequences": {
+    "custom_world_boss_pressure": [
+      "incident_starts",
+      "custom_boss_phase_begins",
+      "recommendation_triggers"
+    ]
+  }
+}
