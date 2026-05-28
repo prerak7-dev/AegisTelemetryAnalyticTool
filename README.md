@@ -640,3 +640,83 @@ Fixed the dashboard crash caused by `st.columns(..., gap=None)`. Streamlit only 
 ## Phase 6.25 navigation label width fix
 
 Navigation labels now use content-weighted column sizing so longer labels like `Recommendation Rules` are not clipped. Additional CSS prevents Streamlit/BaseWeb button internals from truncating tab text.
+
+
+## Phase 7 multi-dimensional live pressure command center
+
+Command Center now promotes all major live degradation signals into first-class pressure cards and trends instead of making p95 server frame time the only headline metric.
+
+New pressure dimensions:
+
+- Simulation
+- Network
+- Replication
+- Physics
+- Memory
+- AI
+- Matchmaking
+- Player Impact
+- Telemetry Quality
+
+The Command Center includes pressure cards, normalized pressure timelines, pressure ranking, pressure drilldown, frame-time symptom view, and source/regional pressure summary.
+
+
+## Phase 7.1 query performance foundation and baseline intelligence preparation
+
+This phase improves the dashboard query workflow before expanding into later analytics phases.
+
+Added:
+
+- named query diagnostics
+- query cache TTL tiers: `live`, `short`, `medium`, `static`
+- `Data & Schemas > Query Performance` workspace
+- lazy Command Center drilldown sections
+- baseline anomaly preview comparing current windows against recent historical source/region/server/map/zone behavior
+
+This prepares the tool for dynamic thresholds, build regression analysis, fix validation, incident workflow, demo scenarios, analyst notebooks, and production readiness work.
+
+
+## Phase 7.2 query architecture hardening
+
+Phase 7.2 adds a configurable performance layer for the dashboard.
+
+Added:
+
+- `config/dashboard_performance.json`
+- `services/dashboard/performance_config.py`
+- configurable table names
+- configurable pressure scoring budgets
+- configurable query budgets
+- configurable cache TTLs
+- configurable dashboard limits
+- configurable baseline windows and anomaly weights
+- query over-budget diagnostics
+- `Data & Schemas > Performance Config` workspace
+- optional ClickHouse rollup SQL templates in `sql/phase7_2_query_architecture_hardening.sql`
+
+This keeps the tool adaptable for different games, server models, regions, platforms, and studio telemetry conventions without requiring code edits for every threshold or table-name change.
+
+
+## Phase 7.2.1 navigation and filter persistence fix
+
+Fixed the `Data & Schemas > Performance Config` subnavigation rendering outside the browser window by moving subnavigation into a full-width responsive row. Sidebar filters now persist across live refresh through stable `st.session_state` keys. A visible filtered-data scope strip now appears above the workspace content, and tables are wrapped in a horizontal-scroll shell for wide evidence views.
+
+
+## Phase 7.2.2 sidebar selectbox format function fix
+
+Fixed a Streamlit sidebar crash caused by passing `format_func=None` into persisted selectboxes. The sidebar helper now only passes `format_func` when a callable is provided, preserving filter persistence across auto-refresh without causing `'NoneType' object is not callable`.
+
+
+## Phase 7.2.3 subnavigation alignment fix
+
+Restored the working per-group hover subnavigation model so subnav tabs appear directly below the hovered main tab and remain clickable. Right-edge groups now align their subnav to the right, keeping long rows such as `Data & Schemas > Performance Config` inside the viewport without detaching the row from the main navigation.
+
+
+## Phase 7.2.4 durable filter persistence
+
+Strengthened sidebar filter persistence during live refresh. Filters now persist in both `st.session_state` and URL query parameters, so auto-refresh reruns restore the selected source profile, region, server, analysis window, refresh interval, table row limit, and live-refresh state before widgets render.
+
+
+## Phase 7.2.5 canonical filter state fix
+
+Fixed live-refresh filter resets by separating widget state from canonical persisted filter state. Sidebar widgets now mirror every selection into `st.session_state["aegis_persisted_filters"]` through callbacks and restore widget keys from that canonical object before rendering.

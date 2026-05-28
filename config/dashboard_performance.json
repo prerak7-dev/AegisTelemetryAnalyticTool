@@ -1,0 +1,111 @@
+{
+  "version": "7.2",
+  "description": "Configurable dashboard performance, pressure scoring, query budgets, and rollup table settings.",
+  "tables": {
+    "aggregate_zone_table": "agg_zone_30s",
+    "data_quality_table": "data_quality_failures",
+    "pressure_rollup_table": "agg_pressure_30s",
+    "top_pressure_zones_table": "agg_top_pressure_zones_1m",
+    "context_baseline_table": "agg_context_baseline_1h",
+    "incident_table": "incident_windows"
+  },
+  "feature_flags": {
+    "prefer_pressure_rollup_table": false,
+    "prefer_top_pressure_zones_table": false,
+    "enable_pipeline_health_cards": true,
+    "enable_query_budget_warnings": true
+  },
+  "cache_policies": {
+    "live": 4,
+    "short": 15,
+    "medium": 60,
+    "static": 300
+  },
+  "query_budgets_ms": {
+    "default": 1500,
+    "command_center_live_pressure_summary": 700,
+    "command_center_data_quality_count": 900,
+    "command_center_pressure_timeline": 1500,
+    "command_center_pressure_drilldown": 2500,
+    "command_center_baseline_anomaly_preview": 4000,
+    "command_center_frame_time_symptom_timeline": 1500,
+    "command_center_worst_hot_zones": 2000,
+    "command_center_source_regional_pressure_summary": 1800,
+    "sidebar_source_profiles": 1200,
+    "sidebar_server_inventory": 1600
+  },
+  "parallelism": {
+    "max_dashboard_workers": 3,
+    "max_clickhouse_fanout": 4
+  },
+  "pressure_scoring": {
+    "status_thresholds": {
+      "warning": 55,
+      "critical": 80
+    },
+    "simulation": {
+      "server_frame_ms_p95_budget": 75,
+      "server_frame_ms_p99_budget": 95,
+      "cpu_p95_budget": 95
+    },
+    "network": {
+      "packet_loss_p95_budget": 5,
+      "packet_out_kbps_p95_budget": 8000
+    },
+    "replication": {
+      "replicated_objects_p95_budget": 12000,
+      "ability_casts_budget": 1200,
+      "aoe_events_budget": 650
+    },
+    "physics": {
+      "physics_events_budget": 500
+    },
+    "memory": {
+      "memory_mb_p95_budget": 12000
+    },
+    "ai": {
+      "ai_pathfinding_requests_budget": 1200,
+      "ai_agents_active_p95_budget": 280
+    },
+    "matchmaking": {
+      "matchmaking_queue_p95_budget": 180,
+      "matchmaking_events_budget": 650
+    },
+    "player_impact": {
+      "impact_events_budget": 80,
+      "packet_loss_weight_budget": 5,
+      "packet_loss_weight_scale": 80
+    },
+    "telemetry_quality": {
+      "quality_failure_ratio_budget": 0.2,
+      "minimum_quality_denominator": 10
+    }
+  },
+  "baseline": {
+    "history_multiplier": 8,
+    "minimum_history_minutes": 360,
+    "minimum_baseline_rows": 6,
+    "anomaly_score_weights": {
+      "frame_ratio": 35,
+      "frame_z": 18,
+      "packet_loss_ratio": 30,
+      "aoe_ratio": 22,
+      "memory_ratio": 18
+    },
+    "severity_thresholds": {
+      "warning": 55,
+      "critical": 80
+    }
+  },
+  "dashboard_limits": {
+    "default_drilldown_limit": 1200,
+    "timeline_limit": 1200,
+    "frame_timeline_limit": 900,
+    "max_safe_table_rows": 200
+  },
+  "pipeline_health": {
+    "staleness_warning_seconds": 90,
+    "staleness_critical_seconds": 240,
+    "minimum_recent_rows_warning": 10
+  }
+}

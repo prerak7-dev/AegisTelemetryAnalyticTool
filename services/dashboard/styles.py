@@ -3234,6 +3234,460 @@ def inject_global_styles() -> None:
             overflow: visible !important;
           }
 
+
+          /* Phase 7 multidimensional live pressure command center */
+          .pressure-grid-note {
+            color: var(--aegis-muted);
+            margin: -0.25rem 0 0.9rem;
+            font-size: 0.92rem;
+          }
+
+          .pressure-card {
+            position: relative;
+            min-height: 204px;
+            background: linear-gradient(180deg, var(--aegis-surface) 0%, var(--aegis-surface-2) 100%);
+            color: var(--aegis-ink);
+            border: 1px solid var(--aegis-line-2);
+            padding: 14px 16px 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 24px rgba(0,0,0,0.12);
+          }
+
+          .pressure-card::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 7px;
+            height: 100%;
+            background: var(--aegis-green);
+          }
+
+          .pressure-card.pressure-warning::before {
+            background: var(--aegis-orange);
+          }
+
+          .pressure-card.pressure-critical::before {
+            background: var(--aegis-red);
+          }
+
+          .pressure-topline {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            align-items: flex-start;
+            color: rgba(37,35,42,0.72);
+            text-transform: uppercase;
+            letter-spacing: 0.13em;
+            font-size: 0.66rem;
+            font-weight: 950;
+          }
+
+          .pressure-score {
+            color: var(--aegis-ink);
+            font-size: 3.2rem;
+            line-height: 0.95;
+            font-weight: 950;
+            letter-spacing: -0.06em;
+            margin-top: 0.72rem;
+            font-variant-numeric: tabular-nums;
+          }
+
+          .pressure-primary {
+            color: var(--aegis-ink);
+            font-size: 0.92rem;
+            font-weight: 900;
+            margin-top: 0.65rem;
+          }
+
+          .pressure-driver {
+            color: rgba(37,35,42,0.74);
+            font-size: 0.78rem;
+            line-height: 1.35;
+            margin-top: 0.45rem;
+            overflow-wrap: anywhere;
+          }
+
+          .pressure-recommendation {
+            color: rgba(37,35,42,0.86);
+            font-size: 0.78rem;
+            line-height: 1.35;
+            margin-top: 0.7rem;
+            border-top: 1px solid rgba(37,35,42,0.14);
+            padding-top: 0.55rem;
+            overflow-wrap: anywhere;
+          }
+
+          .pressure-card.pressure-critical .pressure-score {
+            color: #8f2600;
+          }
+
+          .pressure-card.pressure-warning .pressure-score {
+            color: #9a6500;
+          }
+
+          .pressure-section-title {
+            color: #ffffff;
+            font-size: 1.05rem;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            font-weight: 950;
+            margin: 1rem 0 0.55rem;
+          }
+
+          .pressure-callout {
+            background: rgba(255,255,255,0.025);
+            border-left: 5px solid var(--aegis-blue);
+            border-top: 1px solid var(--aegis-line);
+            border-right: 1px solid var(--aegis-line);
+            border-bottom: 1px solid var(--aegis-line);
+            padding: 13px 15px;
+            color: #f4f4f4;
+            margin-bottom: 0.95rem;
+          }
+
+          .pressure-callout b {
+            color: #ffffff;
+          }
+
+
+          /* Phase 7.2.1 responsive nav, persistent-filter context, and horizontal table scroll */
+          .filter-context-strip {
+            border: 1px solid var(--aegis-line);
+            background: rgba(255,255,255,0.035);
+            padding: 12px 14px;
+            margin: 4px 0 16px;
+            color: var(--aegis-text);
+          }
+
+          .filter-context-title {
+            color: var(--aegis-muted);
+            font-size: 0.70rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            font-weight: 950;
+            margin-bottom: 8px;
+          }
+
+          .filter-context-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+          }
+
+          .filter-context-chips span {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(180deg, #f6f6f7 0%, #dedee2 100%);
+            color: #25232a;
+            border: 1px solid rgba(190,190,194,0.85);
+            padding: 0.46rem 0.72rem;
+            font-size: 0.76rem;
+            font-weight: 850;
+            letter-spacing: 0.045em;
+            text-transform: uppercase;
+            max-width: 100%;
+            overflow-wrap: anywhere;
+          }
+
+          .filter-context-chips span b {
+            color: rgba(37,35,42,0.62);
+            font-size: 0.66rem;
+            letter-spacing: 0.11em;
+          }
+
+          /*
+            The subnav is now rendered as a full-width row below the main nav,
+            not inside the hovered group's narrow column. This keeps long groups
+            such as Data & Schemas > Performance Config inside the viewport.
+          */
+          .st-key-aegis_nav_bar {
+            overflow: visible !important;
+            max-width: 100% !important;
+          }
+
+          .st-key-aegis_nav_bar div[class*="st-key-aegis_nav_subnav_"] {
+            position: relative !important;
+            inset: auto !important;
+            width: 100% !important;
+            min-width: 0 !important;
+            max-width: 100% !important;
+            max-height: 0 !important;
+            opacity: 0 !important;
+            overflow: hidden !important;
+            pointer-events: none !important;
+            transform: translateY(-0.25rem);
+            transition:
+              max-height 170ms ease,
+              opacity 140ms ease,
+              transform 140ms ease;
+            z-index: 7200 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            border: 0 !important;
+            background: transparent !important;
+            box-shadow: none !important;
+          }
+
+          .st-key-aegis_nav_bar div[class*="st-key-aegis_nav_subnav_"] [data-testid="stHorizontalBlock"] {
+            display: inline-flex !important;
+            flex-direction: row !important;
+            flex-wrap: nowrap !important;
+            align-items: stretch !important;
+            gap: 0 !important;
+            width: max-content !important;
+            min-width: max-content !important;
+            max-width: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            overflow-x: auto !important;
+            overflow-y: hidden !important;
+            background: rgba(245,245,246,0.98) !important;
+            border: 1px solid rgba(190,190,194,0.65) !important;
+            box-shadow: 0 1.1rem 1.75rem rgba(0,0,0,0.16) !important;
+          }
+
+          .st-key-aegis_nav_bar div[class*="st-key-aegis_nav_subnav_"] [data-testid="column"] {
+            width: auto !important;
+            min-width: max-content !important;
+            max-width: max-content !important;
+            flex: 0 0 auto !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            overflow: visible !important;
+          }
+
+          .st-key-aegis_nav_bar div[class*="st-key-aegis_nav_subnav_"] [data-testid="element-container"],
+          .st-key-aegis_nav_bar div[class*="st-key-aegis_nav_subnav_"] [data-testid="stButton"],
+          .st-key-aegis_nav_bar div[class*="st-key-aegis_nav_subnav_"] [data-testid="stButton"] > button {
+            width: auto !important;
+            min-width: max-content !important;
+            max-width: max-content !important;
+            margin: 0 !important;
+          }
+
+          .st-key-aegis_nav_bar div[class*="st-key-aegis_nav_subnav_"] button {
+            min-block-size: 2.75rem !important;
+            border-radius: 0 !important;
+            border: 0 !important;
+            border-right: 1px solid rgba(190,190,194,0.45) !important;
+            background: transparent !important;
+            color: #3f3d45 !important;
+            box-shadow: none !important;
+            padding: 0.70rem 1.45rem !important;
+            white-space: nowrap !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+          }
+
+          .st-key-aegis_nav_bar div[class*="st-key-aegis_nav_subnav_"] button,
+          .st-key-aegis_nav_bar div[class*="st-key-aegis_nav_subnav_"] button *,
+          .st-key-aegis_nav_bar div[class*="st-key-aegis_nav_subnav_"] button span,
+          .st-key-aegis_nav_bar div[class*="st-key-aegis_nav_subnav_"] button p {
+            color: #3f3d45 !important;
+            font-family: inherit !important;
+            font-size: 0.82rem !important;
+            letter-spacing: 0.03em !important;
+            text-transform: none !important;
+            font-weight: 780 !important;
+            overflow: visible !important;
+            text-overflow: clip !important;
+            white-space: nowrap !important;
+          }
+
+          .st-key-aegis_nav_bar div[class*="st-key-aegis_nav_item_"][class*="_active"] button,
+          .st-key-aegis_nav_bar div[class*="st-key-aegis_nav_subnav_"] button[data-testid="stBaseButton-primary"] {
+            background: #ffffff !important;
+            box-shadow: inset 0 -3px 0 #56B4E9 !important;
+          }
+
+          /*
+            Make dataframe containers horizontally scrollable when the selected
+            filters produce wide evidence tables.
+          */
+          .aegis-table-scroll-shell {
+            width: 100%;
+            max-width: 100%;
+            overflow-x: auto !important;
+            overflow-y: visible;
+          }
+
+          .aegis-table-scroll-shell [data-testid="stDataFrame"],
+          .aegis-table-scroll-shell [data-testid="stDataFrame"] > div,
+          .aegis-table-scroll-shell [data-testid="stDataFrame"] section,
+          .aegis-table-scroll-shell [data-testid="stDataFrame"] iframe {
+            max-width: 100% !important;
+            overflow-x: auto !important;
+          }
+
+
+          /* Phase 7.2.3 per-group subnav restoration + right-edge alignment */
+          /*
+            Restore the working interaction model:
+            - subnav is a child of its main group
+            - no detached full-width row
+            - no hover gap
+            - buttons remain one-click state-driven
+            - right-edge groups align their subnav to the right so long rows
+              stay inside the viewport
+          */
+
+          .st-key-aegis_nav_bar {
+            overflow: visible !important;
+            max-width: 100% !important;
+          }
+
+          .st-key-aegis_nav_bar [data-testid="stHorizontalBlock"],
+          .st-key-aegis_nav_bar [data-testid="column"],
+          .st-key-aegis_nav_bar [data-testid="column"] > div {
+            overflow: visible !important;
+          }
+
+          .st-key-aegis_nav_bar div[class*="st-key-aegis_nav_group_"] {
+            position: relative !important;
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: stretch !important;
+            height: auto !important;
+            min-height: 0 !important;
+            max-height: none !important;
+            overflow: visible !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            z-index: 5000 !important;
+          }
+
+          .st-key-aegis_nav_bar div[class*="st-key-aegis_nav_group_"]:hover {
+            z-index: 8000 !important;
+          }
+
+          .st-key-aegis_nav_bar div[class*="st-key-aegis_nav_group_"] [data-testid="stVerticalBlock"],
+          .st-key-aegis_nav_bar div[class*="st-key-aegis_nav_group_"] [data-testid="stVerticalBlock"] > div,
+          .st-key-aegis_nav_bar div[class*="st-key-aegis_nav_group_"] [data-testid="element-container"],
+          .st-key-aegis_nav_bar div[class*="st-key-aegis_nav_group_"] div[data-testid="stMarkdownContainer"],
+          .st-key-aegis_nav_bar div[class*="st-key-aegis_nav_group_"] div[data-testid="stMarkdownContainer"] p {
+            margin: 0 !important;
+            padding: 0 !important;
+            gap: 0 !important;
+            overflow: visible !important;
+          }
+
+          .st-key-aegis_nav_bar .aegis-main-group-tab {
+            min-block-size: 3rem !important;
+            height: auto !important;
+            max-height: none !important;
+            box-sizing: border-box !important;
+          }
+
+          .st-key-aegis_nav_bar div[class*="st-key-aegis_nav_subnav_"] {
+            position: relative !important;
+            inset: auto !important;
+            top: auto !important;
+            left: auto !important;
+            width: max-content !important;
+            min-width: max-content !important;
+            max-width: calc(100vw - 2rem) !important;
+            max-height: 0 !important;
+            opacity: 0 !important;
+            overflow: hidden !important;
+            pointer-events: none !important;
+            transform: translateY(-0.25rem);
+            transition:
+              max-height 170ms ease,
+              opacity 140ms ease,
+              transform 140ms ease;
+            z-index: 8200 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            border: 1px solid rgba(190,190,194,0.65) !important;
+            border-radius: 0 !important;
+            background: rgba(245,245,246,0.98) !important;
+            box-shadow: 0 1.1rem 1.75rem rgba(0,0,0,0.16) !important;
+          }
+
+          .st-key-aegis_nav_bar div[class*="st-key-aegis_nav_subnav_"] [data-testid="stHorizontalBlock"] {
+            display: inline-flex !important;
+            flex-direction: row !important;
+            flex-wrap: nowrap !important;
+            align-items: stretch !important;
+            gap: 0 !important;
+            width: max-content !important;
+            min-width: max-content !important;
+            max-width: calc(100vw - 2rem) !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            overflow-x: auto !important;
+            overflow-y: hidden !important;
+            background: rgba(245,245,246,0.98) !important;
+            border: 0 !important;
+            box-shadow: none !important;
+          }
+
+          .st-key-aegis_nav_bar div[class*="st-key-aegis_nav_subnav_"] [data-testid="column"] {
+            width: auto !important;
+            min-width: max-content !important;
+            max-width: max-content !important;
+            flex: 0 0 auto !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            overflow: visible !important;
+          }
+
+          .st-key-aegis_nav_bar div[class*="st-key-aegis_nav_subnav_"] [data-testid="column"] > div,
+          .st-key-aegis_nav_bar div[class*="st-key-aegis_nav_subnav_"] [data-testid="element-container"],
+          .st-key-aegis_nav_bar div[class*="st-key-aegis_nav_subnav_"] [data-testid="stButton"],
+          .st-key-aegis_nav_bar div[class*="st-key-aegis_nav_subnav_"] [data-testid="stButton"] > button {
+            width: auto !important;
+            min-width: max-content !important;
+            max-width: max-content !important;
+            margin: 0 !important;
+          }
+
+          .st-key-aegis_nav_bar div[class*="st-key-aegis_nav_subnav_"] button {
+            min-block-size: 2.75rem !important;
+            border-radius: 0 !important;
+            border: 0 !important;
+            border-right: 1px solid rgba(190,190,194,0.45) !important;
+            background: transparent !important;
+            color: #3f3d45 !important;
+            box-shadow: none !important;
+            padding: 0.70rem 1.45rem !important;
+            white-space: nowrap !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+          }
+
+          .st-key-aegis_nav_bar div[class*="st-key-aegis_nav_subnav_"] button:hover {
+            background: #ffffff !important;
+            transform: translateY(-1px);
+            color: #3f3d45 !important;
+          }
+
+          .st-key-aegis_nav_bar div[class*="st-key-aegis_nav_subnav_"] button,
+          .st-key-aegis_nav_bar div[class*="st-key-aegis_nav_subnav_"] button *,
+          .st-key-aegis_nav_bar div[class*="st-key-aegis_nav_subnav_"] button span,
+          .st-key-aegis_nav_bar div[class*="st-key-aegis_nav_subnav_"] button p {
+            color: #3f3d45 !important;
+            font-family: inherit !important;
+            font-size: 0.82rem !important;
+            letter-spacing: 0.03em !important;
+            text-transform: none !important;
+            font-weight: 780 !important;
+            overflow: visible !important;
+            text-overflow: clip !important;
+            white-space: nowrap !important;
+          }
+
+          .st-key-aegis_nav_bar div[class*="st-key-aegis_nav_item_"][class*="_active"] button,
+          .st-key-aegis_nav_bar div[class*="st-key-aegis_nav_subnav_"] button[data-testid="stBaseButton-primary"] {
+            background: #ffffff !important;
+            box-shadow: inset 0 -3px 0 #56B4E9 !important;
+          }
+
         </style>
         """,
         unsafe_allow_html=True,

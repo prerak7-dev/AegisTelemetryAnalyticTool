@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import streamlit as st
 
-from services.dashboard.components import render_hero, render_paper_metric, render_status_banner
+from services.dashboard.components import render_filter_context, render_hero, render_paper_metric, render_status_banner
 from services.dashboard.query import query_df
 from services.dashboard.sidebar import render_sidebar
 from services.dashboard.styles import inject_global_styles
@@ -73,6 +73,8 @@ def main() -> None:
         st.stop()
 
     workspace = render_workspace_navigation()
+
+    render_filter_context(context, workspace_label=workspace.label)
 
     render_kpi_strip(context)
 

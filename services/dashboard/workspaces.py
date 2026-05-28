@@ -15,6 +15,8 @@ from services.dashboard.views import (
     timeline_stages,
     recommendation_rules,
     rule_testing,
+    query_performance,
+    performance_config,
 )
 
 @dataclass(frozen=True)
@@ -50,6 +52,8 @@ WORKSPACES: list[Workspace] = [
     Workspace("timeline_stages", "Timeline Stages", timeline_stages.render),
     Workspace("data_quality", "Data Quality", data_quality.render),
     Workspace("source_schemas", "Source Schemas", source_schemas.render),
+    Workspace("query_performance", "Query Performance", query_performance.render),
+    Workspace("performance_config", "Performance Config", performance_config.render),
 ]
 
 WORKSPACE_GROUPS: list[WorkspaceGroup] = [
@@ -75,7 +79,7 @@ WORKSPACE_GROUPS: list[WorkspaceGroup] = [
         key="data_governance",
         label="Data & Schemas",
         description="Telemetry quality and source schema adaptability.",
-        workspace_keys=("data_quality", "source_schemas"),
+        workspace_keys=("data_quality", "source_schemas", "query_performance", "performance_config"),
     ),
 ]
 

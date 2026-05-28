@@ -123,3 +123,57 @@ def render_multi_metric_timeline(
     )
 
     st.altair_chart(chart, use_container_width=True)
+
+
+def render_horizontal_bar_chart(
+    df: pd.DataFrame,
+    *,
+    x: str,
+    y: str,
+    tooltip_columns: list[str] | None = None,
+    height: int = 320,
+    x_title: str | None = None,
+) -> None:
+    """Render a compact horizontal bar chart for ranked pressure views."""
+    if df.empty:
+        st.info("No data available for the current filter.")
+        return
+
+    tooltip_columns = tooltip_columns or [y, x]
+    tooltips = []
+    for column in tooltip_columns:
+        if column not in df.columns:
+            continue
+        if pd.api.types.is_numeric_dtype(df[column]):
+            tooltips.append(alt.Tooltip(f"{column}:Q", title=column, format=",.2f"))
+        else:
+            tooltips.append(alt.Tooltip(f"{column}:N", title=column))
+
+    chart = (
+        alt.Chart(df)
+        .mark_bar()
+        .encode(
+            x=alt.X(
+                f"{x}:Q",
+                axis=alt.Axis(
+                    title=x_title or x,
+                    titleColor="#E7E7EA",
+                    labelColor="#E7E7EA",
+                    gridColor="#4A4654",
+                    tickColor="#4A4654",
+                ),
+            ),
+            y=alt.Y(
+                f"{y}:N",
+                sort="-x",
+                axis=alt.Axis(title=None, labelColor="#E7E7EA"),
+            ),
+            tooltip=tooltips,
+        )
+        .properties(height=height)
+        .configure(background="#34313d")
+        .configure_view(stroke="#4A4654", fill="#34313d")
+        .configure_axis(domainColor="#4A4654", titleFontSize=12, labelFontSize=11)
+    )
+
+    st.altair_chart(chart, use_container_width=True)

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import base64
+import html
 from pathlib import Path
 
 import streamlit as st
@@ -46,6 +47,41 @@ def _subnav_item_key(workspace_key: str, active: bool) -> str:
     state = "active" if active else "idle"
     return f"aegis_nav_item_{workspace_key}_{state}"
 
+def _render_dynamic_nav_css() -> None:
+    """Generate hover/alignment rules from the workspace registry.
+
+    The subnav is rendered inside its owning main-group container so hover stays
+    connected and clickable. Groups near the right edge are right-aligned so long
+    subnav rows stay inside the browser viewport.
+    """
+    group_count = max(1, len(WORKSPACE_GROUPS))
+    first_right_aligned_index = max(0, group_count - 1)
+    rules: list[str] = []
+
+    for index, group in enumerate(WORKSPACE_GROUPS):
+        group_key = html.escape(group.key, quote=True)
+        alignment = "flex-end" if index >= first_right_aligned_index else "flex-start"
+
+        rules.append(
+            f"""
+            .st-key-aegis_nav_group_{group_key} .st-key-aegis_nav_subnav_{group_key} {{
+              align-self: {alignment} !important;
+            }}
+
+            .st-key-aegis_nav_group_{group_key}:hover .st-key-aegis_nav_subnav_{group_key},
+            .st-key-aegis_nav_subnav_{group_key}:hover {{
+              max-height: 7rem !important;
+              opacity: 1 !important;
+              overflow-x: auto !important;
+              overflow-y: hidden !important;
+              pointer-events: auto !important;
+              transform: translateY(0) !important;
+            }}
+            """
+        )
+
+    st.markdown("<style>" + "\n".join(rules) + "</style>", unsafe_allow_html=True)
+
 def render_workspace_navigation() -> Workspace:
     if ACTIVE_WORKSPACE_KEY not in st.session_state:
         st.session_state[ACTIVE_WORKSPACE_KEY] = DEFAULT_WORKSPACE_KEY
@@ -53,6 +89,8 @@ def render_workspace_navigation() -> Workspace:
     active_workspace_key = _valid_workspace_key(st.session_state.get(ACTIVE_WORKSPACE_KEY))
     active_workspace = workspace_by_key(active_workspace_key)
     active_group = group_for_workspace_key(active_workspace.key)
+
+    _render_dynamic_nav_css()
 
     with st.container(key=NAV_BAR_KEY):
         group_column_weights = [
@@ -72,6 +110,9 @@ def render_workspace_navigation() -> Workspace:
                         unsafe_allow_html=True,
                     )
 
+                    # Keep the subnav as a direct child of the group. This is
+                    # what makes the hover path continuous and prevents the gap
+                    # from making the row impossible to click.
                     with st.container(key=_subnav_container_key(group.key)):
                         subnav_column_weights = [
                             max(14, len(workspace_by_key(workspace_key).label) + 6)

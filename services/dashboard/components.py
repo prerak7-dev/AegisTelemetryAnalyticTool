@@ -7,8 +7,8 @@ def render_hero() -> None:
     st.markdown(
         """
         <div class="hero-shell">
-          <div class="hero-kicker">Aegis Telemetry Analytics Tool</div>
-          <div class="hero-title">Gameplay Performance Analysis</div>
+          <div class="hero-kicker">AegisTelemetry / Live Operations</div>
+          <div class="hero-title">Gameplay Performance Intelligence</div>
           <div class="hero-subtitle">
             A real-time analytics command center for server pressure, hot-zone risk, source-schema lineage,
             telemetry quality, and evidence-backed optimization decisions in high-traffic live-service games.
@@ -31,7 +31,36 @@ def render_paper_metric(label: str, value: str) -> None:
     )
 
 def render_table(df: pd.DataFrame, *, height: int = 360) -> None:
+    """Render a dataframe with horizontal scrolling when columns exceed width."""
+    st.markdown('<div class="aegis-table-scroll-shell">', unsafe_allow_html=True)
     st.dataframe(df, use_container_width=True, hide_index=True, height=height)
+    st.markdown('</div>', unsafe_allow_html=True)
+
+def render_filter_context(context, *, workspace_label: str | None = None) -> None:
+    """Render the active data scope so every chart/table has visible context."""
+    filters = context.filters
+    workspace = _escape_html(workspace_label or "Current Workspace")
+    source = _escape_html(filters.selected_source_profile)
+    region = _escape_html(filters.selected_region)
+    server = _escape_html(getattr(context, "selected_server_display", filters.selected_server))
+    window = _escape_html(f"Last {int(filters.time_window_minutes)} minutes")
+    rows = _escape_html(str(int(filters.max_table_rows)))
+
+    st.markdown(
+        f"""
+        <div class="filter-context-strip">
+          <div class="filter-context-title">Filtered Data Scope / {workspace}</div>
+          <div class="filter-context-chips">
+            <span><b>Source</b>{source}</span>
+            <span><b>Region</b>{region}</span>
+            <span><b>Server</b>{server}</span>
+            <span><b>Window</b>{window}</span>
+            <span><b>Table Limit</b>{rows}</span>
+          </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
 def severity_class(severity: str) -> str:
     severity = str(severity or "").lower()
@@ -135,3 +164,46 @@ def render_timeline_sequence_cards(sequence_df: pd.DataFrame) -> None:
         st.markdown(card_html, unsafe_allow_html=True)
 
     st.markdown('</div>', unsafe_allow_html=True)
+
+def pressure_status(score: float) -> tuple[str, str]:
+    score = float(score or 0)
+    if score >= 80:
+        return "critical", "CRITICAL"
+    if score >= 55:
+        return "warning", "WATCH"
+    return "stable", "STABLE"
+
+def render_pressure_card(
+    *,
+    title: str,
+    score: float,
+    primary_value: str,
+    driver: str,
+    recommendation: str,
+) -> None:
+    """Render one live pressure card for Command Center.
+
+    This is intentionally HTML-based because the dashboard visual language
+    uses sharp, square dossier cards instead of rounded default widgets.
+    """
+    css_class, status = pressure_status(score)
+    title = _escape_html(title)
+    primary_value = _escape_html(primary_value)
+    driver = _escape_html(driver)
+    recommendation = _escape_html(recommendation)
+
+    st.markdown(
+        f"""
+        <div class="pressure-card pressure-{css_class}">
+          <div class="pressure-topline">
+            <span>{title}</span>
+            <span>{status}</span>
+          </div>
+          <div class="pressure-score">{float(score or 0):.0f}</div>
+          <div class="pressure-primary">{primary_value}</div>
+          <div class="pressure-driver">{driver}</div>
+          <div class="pressure-recommendation">{recommendation}</div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
