@@ -720,3 +720,202 @@ Strengthened sidebar filter persistence during live refresh. Filters now persist
 ## Phase 7.2.5 canonical filter state fix
 
 Fixed live-refresh filter resets by separating widget state from canonical persisted filter state. Sidebar widgets now mirror every selection into `st.session_state["aegis_persisted_filters"]` through callbacks and restore widget keys from that canonical object before rendering.
+
+
+## Phase 7.3 baselines, anomaly detection, and dynamic thresholds
+
+Added `Incidents > Baseline Intelligence`, a context-aware anomaly workspace that compares the active filtered window against recent historical behavior for the same source/region/server/map/zone or broader configurable scopes.
+
+The phase adds dynamic thresholds, ratio-to-baseline, z-score, anomaly severity, dominant anomaly metric, baseline confidence, and optional SQL templates for a future `baseline_anomaly_windows` rollup table.
+
+
+## Phase 8 build regression analysis
+
+Added `Incidents > Build Regression`, a build-to-build comparison workspace for release readiness and performance regression triage. The workspace compares a previous build against a current build using configurable metrics, weights, directions, confidence requirements, and severity thresholds.
+
+The simulator now supports `--build-version` and `--build-regression-mode` so demo data can be generated for baseline, regressed, or improved candidate builds.
+
+
+## Phase 9 experimentation and fix validation
+
+Added `Rules & Replay > Fix Validation`, a control/treatment analysis workspace for validating whether recommended optimizations improved primary performance metrics without regressing guardrails. The simulator now supports `--experiment-id`, `--experiment-variant`, and `--fix-validation-mode`.
+
+
+## Phase 10 alerting, ownership, and incident workflow
+
+Added `Incidents > Incident Workflow`, a local workflow layer for assigning incident owners, tracking status, adding analyst notes, monitoring SLA state, writing resolution summaries, and generating exportable incident reports. Workflow settings are configurable in `config/dashboard_performance.json`, and optional ClickHouse production tables are included in `sql/phase10_incident_workflow.sql`.
+
+
+## Phase 11 portfolio demo mode and scenario library
+
+Added `Demo > Demo Control Center`, a portfolio-ready scenario launcher and runbook workspace. Scenarios are configured in `config/demo_scenarios.json`, and launch/reset behavior is controlled through `config/dashboard_performance.json` under `demo_control_center`.
+
+
+## Phase 11.1 demo configuration packaging fix
+
+Fixed Demo Control Center runtime packaging so `config/demo_scenarios.json` and `simulator/generate_traffic.py` are available inside the dashboard container. The dashboard service now mounts `./config`, `./simulator`, and `./data`, enabling editable scenario configs, dashboard-launched traffic generation, resettable demo data, local scenario history, and host/container command generation.
+
+
+## Phase 11.2 demo UX and fast feedback loop
+
+Improved Demo Control Center number-input styling and added a Live Demo Feedback panel. The panel shows generator state, raw event ingestion, aggregate window availability, incidents, max risk, and latest data ages so the demo no longer feels silent while the processor waits for aggregate windows to close.
+
+
+## Phase 11.3 demo action controls styling
+
+Updated Demo Control Center action buttons and the sidebar refresh button to match the sharp tab visual language. Reset confirmation is now grouped with the reset button and labeled clearly as `Confirm reset of demo telemetry tables`.
+
+
+## Phase 12 data export, analyst notebooks, and SQL templates
+
+Added `Data & Schemas > Analyst Toolkit`, a workspace for filter-aware SQL template execution, CSV/JSON exports, downloadable SQL templates, and downloadable analyst notebooks. This phase adds notebooks for hot-zone analysis, build regression, fix validation, and rule quality review, plus SQL templates for common investigation workflows.
+
+
+## Phase 12.5 professional documentation workspace
+
+Added `Data & Schemas > Documentation`, a configuration-backed professional documentation workspace with its own hierarchical navigation, search, page outline, user guide, developer guide, data reference, operations reference, and markdown page downloads. Documentation navigation lives in `config/documentation_navigation.json`, and markdown pages live under `docs/toolkit/`.
+
+
+## Phase 13 production readiness layer
+
+Added production-readiness assets: OpenAPI contract, contract tests, collector `/metrics` endpoint, Prometheus scrape config, Grafana dashboard seed, OpenTelemetry collector starter config, Kafka retention/DLQ documentation, ClickHouse partitioning/TTL documentation, collector load-test profile, deployment checklist, readiness checklist, and production-readiness pages in the documentation workspace.
+
+
+## Phase 13.1 subnav viewport alignment fix
+
+Fixed long workspace subnav rows clipping outside the browser viewport. Navigation now right-aligns long or right-edge subnav groups based on the workspace registry, so Data & Schemas remains fully visible after adding Analyst Toolkit and Documentation.
+
+
+## Phase 13.2 robust subnav layout fix
+
+Reworked workspace navigation so subnav rows render in a full-width overlay layer instead of inside individual group columns. This fixes Data & Schemas clipping after adding Performance Config, Analyst Toolkit, and Documentation, while preserving hover behavior and state-driven Streamlit button navigation.
+
+
+## Phase 13.3 hover-stable viewport-fit subnav
+
+Replaced the failed full-layer `:has()` hover approach with a reliable per-group hover subnav. Long or right-side subnavs now shift to the nav content edge and can wrap to two rows if needed, while small subnavs remain aligned to their main tab.
+
+
+## Phase 13.4 right-aligned long subnav
+
+Fixed long subnav groups such as Data & Schemas by shifting the dropdown left to align with the right edge of the dashboard content viewport and by structurally splitting long subnavs into two rows, so all tabs remain visible without zooming out.
+
+
+## Phase 13.5 two-row subnav visual polish
+
+Polished the long two-row workspace subnav so it no longer clips content or shows internal scrollbars. The subnav now uses consistent row height, button spacing, readable labels, and restores the blue underline for hover and active states.
+
+
+## Phase 13.6 balanced two-row subnav layout
+
+Balanced long two-row workspace subnavs by using equal-width columns per row and full-width row styling. This removes empty trailing space, prevents tabs from protruding past the panel, and keeps row borders aligned.
+
+
+## Phase 13.7 consistent subnav row strategy
+
+Updated subnav row splitting so odd five-tab groups remain as one row instead of an uneven 3/2 layout. Even long groups such as Data & Schemas keep the clean 3/3 two-row layout. This removes empty trailing panel space and avoids tabs protruding past the panel edge.
+
+
+## Phase 13.8 customizable adaptive subnav layout
+
+Replaced manual subnav row splitting with an adaptive flex-based layout. Subnav buttons are rendered sequentially and CSS handles wrapping, last-row stretching, hover/active underline states, and viewport-safe alignment. This makes the navigation robust when developers add or remove workspaces without requiring design recalibration.
+
+
+## Phase 13.9 horizontal adaptive subnav grid
+
+Updated the customizable subnav to use a horizontal CSS-grid layout instead of a vertical flex stack. Subnav tabs remain horizontal, wrap into additional horizontal rows only when needed, stay inside the dashboard content viewport, and keep hover/active blue underline states without manual row splitting.
+
+
+## Phase 13.10 robust horizontal workspace subnav
+
+Replaced the experimental subnav CSS with an isolated `aegis_v2_*` navigation implementation. Subnavs are rendered as horizontal Streamlit column rows, compact groups align with their main tab, long/overflow-risk groups use the full dashboard content nav-row width, and large custom groups create balanced horizontal rows automatically.
+
+
+## Phase 13.11 dynamic compact subnav width
+
+Refined the v2 navigation so small subnav groups, such as Demo with one option, stay compact instead of expanding to the full dashboard nav-row width. Compact groups now use dynamic width based on option labels and right-align near the viewport edge when needed.
+
+
+## Phase 13.12 hierarchical documentation side navigation
+
+Replaced the Documentation workspace's section dropdown and page radio selector with a professional hierarchical expanding side navigation. Sections expand vertically and pages render as state-driven buttons with active/hover styling matched to the Aegis dashboard theme.
+
+
+## Phase 13.13 form control containment polish
+
+Added CSS containment for documentation badges, Demo Control Center number inputs, number steppers, reset confirmation controls, and action buttons. This prevents inner controls from spilling outside bordered cards while preserving the current visual design.
+
+
+## Phase 13.14 documentation badge inner padding
+
+Refined the Documentation workspace audience badge so it no longer touches the right edge of the side-nav panel. The badge now has symmetric left/right inset spacing while staying fully contained.
+
+
+## Phase 13.15 consistent control inset system
+
+Generalized the documentation badge padding fix across similar bordered controls. Documentation side-nav controls, Demo Control Center number inputs, reset checkbox/button/caption, action buttons, and sidebar refresh now use consistent symmetric insets and defensive box sizing.
+
+
+## Phase 13.16 global design-system hardening
+
+Added an app-wide square-edge and containment layer for Streamlit/BaseWeb controls. Documentation navigation, audience badges, Demo Control Center number inputs, reset controls, action buttons, and future Aegis keyed controls now share consistent padding, margins, border-box sizing, no rounded corners, and no visual spill outside bordered panels.
+
+
+## Phase 13.17 number input stepper containment fix
+
+Fixed Demo Control Center number inputs so the text field and minus/plus steppers stay inside the bordered card. The number input now uses a contained flex model with fixed-width stepper buttons, square edges, and no right-edge clipping.
+
+
+## Phase 13.18 demo numeric text inputs
+
+Replaced the Demo Control Center duration/EPS number inputs with contained numeric text inputs to eliminate clipped BaseWeb `- / +` stepper controls. Values are parsed and clamped in Python, keeping the same scenario command behavior while restoring consistent square-edged layout.
+
+
+## Phase 13.19 control stepper and card spacing polish
+
+Added custom contained numeric steppers for Demo Control Center duration and events-per-second controls, restoring visible `- / +` controls without relying on clipped native number-input steppers. Also improved Command Center metric/pressure card spacing so cards read as individual panels rather than split-column background slabs.
+
+
+## Phase 13.20 custom stepper state and layout fix
+
+Fixed the Demo Control Center custom numeric stepper. The text input widget now uses a separate widget key from the canonical parsed value key, preventing StreamlitAPIException. The stepper row now uses fixed-width minus/plus columns so both controls remain fully visible inside the card.
+
+
+## Phase 13.21 custom stepper visibility fix
+
+Fixed the Demo Control Center custom stepper so the input value and the `+` sign are visible. The row now allows label + input height, widens the stepper columns, and only applies fixed height to the actual input/button controls.
+
+
+## Phase 13.22 auto refresh runtime optimization
+
+Added a workspace-aware refresh coordinator with configurable live/static/manual/demo policies. Static and manual workspaces no longer install the auto-refresh timer, static/manual workspaces can skip the fleet KPI strip, effective refresh intervals support policy multipliers and jitter, and Query Performance now includes auto-refresh runtime telemetry.
+
+
+## Phase 13.23 live snapshot tables and lightweight queries
+
+Added ClickHouse live snapshot views and dashboard fallback logic. KPI strip, sidebar filters, and Command Center live queries now prefer lightweight snapshot views when available, while safely falling back to aggregate tables for existing developer volumes. Includes `sql/live_snapshot_tables.sql` and `tools/apply_live_snapshot_tables.py` for applying snapshot views to existing ClickHouse instances.
+
+
+## Phase 13.23.1 ClickHouse snapshot init fix
+
+Fixed ClickHouse startup failures from the Phase 13.23 snapshot SQL. Snapshot views now use `DROP VIEW IF EXISTS` + `CREATE VIEW` instead of `CREATE OR REPLACE VIEW`, and staleness calculations avoid aggregate expressions directly inside `dateDiff`. If ClickHouse already failed during first initialization, reset the local dev volume with `docker compose down -v --remove-orphans` before rebuilding.
+
+
+## Phase 13.23.2 ClickHouse snapshot aggregation safety fix
+
+Fixed ClickHouse `ILLEGAL_AGGREGATION` errors from live snapshot views. The default local snapshot views are now pass-through views over `agg_zone_30s`, so the dashboard can safely aggregate over them. Optional snapshot views are no longer created during ClickHouse init; apply them manually with `python tools/apply_live_snapshot_tables.py` after ClickHouse is healthy. If ClickHouse failed during init, run `docker compose down -v --remove-orphans` before rebuilding.
+
+
+## Phase 13.23.3 Command Center snapshot scope fix
+
+Fixed a Command Center runtime `NameError` where `render_pipeline_health()` referenced `live_pressure_table` outside its local scope. The pipeline health helper now resolves its own preferred live table and uses a ClickHouse-safe staleness subquery.
+
+
+## Phase 13.23.4 alert text theme and runtime notice cleanup
+
+Updated all Streamlit alert/info/warning/error containers so text and icons use grayish-white dashboard colors. Removed the sidebar refresh-policy caption and the Command Center Phase 13.23 snapshot notice callout to keep runtime optimization details out of the main operator UI.
+
+
+## Phase 13.23.5 auto refresh session safety fix
+
+Moved the Streamlit auto-refresh component out of the sidebar and into an end-of-render controller in `app.py`. The component now mounts after the page, sidebar, filters, KPI strip, and workspace render, reducing intermittent `Bad message format / SessionInfo before initialized` errors. The auto-refresh component also uses a stable key instead of a workspace-specific dynamic key.

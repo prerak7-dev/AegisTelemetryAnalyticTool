@@ -1,0 +1,219 @@
+{
+  "version": "13.23",
+  "title": "AegisTelemetry Documentation",
+  "description": "Professional user and developer documentation for the AegisTelemetry live-operations analytics toolkit.",
+  "default_section": "getting_started",
+  "default_page": "overview",
+  "sections": [
+    {
+      "id": "getting_started",
+      "title": "Getting Started",
+      "description": "Orientation, quick start, demo flow, and core concepts.",
+      "pages": [
+        {
+          "id": "overview",
+          "title": "Toolkit Overview",
+          "file": "getting_started/overview.md",
+          "audience": "users_developers"
+        },
+        {
+          "id": "quick_start",
+          "title": "Quick Start",
+          "file": "getting_started/quick_start.md",
+          "audience": "users"
+        },
+        {
+          "id": "demo_walkthrough",
+          "title": "Portfolio Demo Walkthrough",
+          "file": "getting_started/demo_walkthrough.md",
+          "audience": "users"
+        }
+      ]
+    },
+    {
+      "id": "user_guide",
+      "title": "User Guide",
+      "description": "How analysts, live-ops teams, and reviewers use each workspace.",
+      "pages": [
+        {
+          "id": "workspace_map",
+          "title": "Workspace Map",
+          "file": "user_guide/workspace_map.md",
+          "audience": "users"
+        },
+        {
+          "id": "operations_workspaces",
+          "title": "Operations Workspaces",
+          "file": "user_guide/operations_workspaces.md",
+          "audience": "users"
+        },
+        {
+          "id": "incident_workflow",
+          "title": "Incident Workflow",
+          "file": "user_guide/incident_workflow.md",
+          "audience": "users"
+        },
+        {
+          "id": "validation_and_exports",
+          "title": "Validation and Analyst Exports",
+          "file": "user_guide/validation_and_exports.md",
+          "audience": "users"
+        }
+      ]
+    },
+    {
+      "id": "developer_guide",
+      "title": "Developer Guide",
+      "description": "How to configure, extend, and maintain the toolkit.",
+      "pages": [
+        {
+          "id": "architecture",
+          "title": "System Architecture",
+          "file": "developer_guide/architecture.md",
+          "audience": "developers"
+        },
+        {
+          "id": "configuration",
+          "title": "Configuration Model",
+          "file": "developer_guide/configuration.md",
+          "audience": "developers"
+        },
+        {
+          "id": "adding_workspaces",
+          "title": "Adding Workspaces",
+          "file": "developer_guide/adding_workspaces.md",
+          "audience": "developers"
+        },
+        {
+          "id": "schemas_rules_stages",
+          "title": "Schemas, Rules, and Timeline Stages",
+          "file": "developer_guide/schemas_rules_stages.md",
+          "audience": "developers"
+        }
+      ]
+    },
+    {
+      "id": "data_reference",
+      "title": "Data Reference",
+      "description": "Telemetry flow, ClickHouse tables, SQL templates, and notebook usage.",
+      "pages": [
+        {
+          "id": "telemetry_flow",
+          "title": "Telemetry Flow",
+          "file": "data_reference/telemetry_flow.md",
+          "audience": "developers"
+        },
+        {
+          "id": "tables",
+          "title": "Core Tables",
+          "file": "data_reference/core_tables.md",
+          "audience": "developers"
+        },
+        {
+          "id": "sql_notebooks",
+          "title": "SQL and Notebooks",
+          "file": "data_reference/sql_notebooks.md",
+          "audience": "users_developers"
+        }
+      ]
+    },
+    {
+      "id": "operations_reference",
+      "title": "Operations Reference",
+      "description": "Deployment, performance, troubleshooting, and roadmap.",
+      "pages": [
+        {
+          "id": "deployment",
+          "title": "Deployment and Runtime",
+          "file": "operations_reference/deployment.md",
+          "audience": "developers"
+        },
+        {
+          "id": "performance",
+          "title": "Performance and Query Strategy",
+          "file": "operations_reference/performance.md",
+          "audience": "developers"
+        },
+        {
+          "id": "troubleshooting",
+          "title": "Troubleshooting",
+          "file": "operations_reference/troubleshooting.md",
+          "audience": "users_developers"
+        },
+        {
+          "id": "auto_refresh_runtime",
+          "title": "Auto Refresh Runtime",
+          "file": "operations_reference/auto_refresh_runtime.md",
+          "audience": "developers"
+        },
+        {
+          "id": "roadmap",
+          "title": "Roadmap",
+          "file": "operations_reference/roadmap.md",
+          "audience": "users_developers"
+        }
+      ]
+    },
+    {
+      "id": "production_readiness",
+      "title": "Production Readiness",
+      "description": "API contracts, observability, Kafka/DLQ, ClickHouse strategy, load testing, and deployment gates.",
+      "pages": [
+        {
+          "id": "overview",
+          "title": "Production Readiness Overview",
+          "file": "production_readiness/overview.md",
+          "audience": "developers"
+        },
+        {
+          "id": "openapi_contracts",
+          "title": "OpenAPI Contracts",
+          "file": "production_readiness/openapi_contracts.md",
+          "audience": "developers"
+        },
+        {
+          "id": "observability",
+          "title": "Observability",
+          "file": "production_readiness/observability.md",
+          "audience": "developers"
+        },
+        {
+          "id": "kafka_retention_dlq",
+          "title": "Kafka Retention and DLQ",
+          "file": "production_readiness/kafka_retention_dlq.md",
+          "audience": "developers"
+        },
+        {
+          "id": "clickhouse_partitioning",
+          "title": "ClickHouse Partitioning",
+          "file": "production_readiness/clickhouse_partitioning.md",
+          "audience": "developers"
+        },
+        {
+          "id": "load_testing",
+          "title": "Load Testing",
+          "file": "production_readiness/load_testing.md",
+          "audience": "developers"
+        },
+        {
+          "id": "deployment_checklist",
+          "title": "Deployment Checklist",
+          "file": "production_readiness/deployment_checklist.md",
+          "audience": "developers"
+        },
+        {
+          "id": "live_snapshot_queries",
+          "title": "Live Snapshot Queries",
+          "file": "production_readiness/live_snapshot_queries.md",
+          "audience": "developers"
+        },
+        {
+          "id": "readiness_checklist",
+          "title": "Readiness Checklist",
+          "file": "production_readiness/readiness_checklist.md",
+          "audience": "users_developers"
+        }
+      ]
+    }
+  ]
+}

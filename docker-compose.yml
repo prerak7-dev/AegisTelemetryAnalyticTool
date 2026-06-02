@@ -97,11 +97,28 @@ services:
       CLICKHOUSE_PORT: "8123"
       CLICKHOUSE_DATABASE: aegis_telemetry
       CLICKHOUSE_PASSWORD: aegis_dev_password
+      AEGIS_DASHBOARD_PERFORMANCE_CONFIG: /app/config/dashboard_performance.json
+    volumes:
+      # Config is mounted so scenario libraries, thresholds, table names, and demo behavior
+      # can be edited without rebuilding the dashboard image.
+      - ./config:/app/config:ro
+      # Simulator is mounted so Demo Control Center launches the same scripts developers edit locally.
+      - ./simulator:/app/simulator:ro
+      - ./sql:/app/sql:ro
+      - ./notebooks:/app/notebooks:ro
+      - ./docs:/app/docs:ro
+      - ./openapi:/app/openapi:ro
+      - ./infra:/app/infra:ro
+      - ./tools:/app/tools:ro
+      # Local writable state for demo history and incident workflow JSON stores.
+      - ./data:/app/data
     ports:
       - "8501:8501"
     depends_on:
       clickhouse:
         condition: service_healthy
+      collector:
+        condition: service_started
 
 volumes:
   clickhouse_data:

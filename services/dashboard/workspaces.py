@@ -8,15 +8,22 @@ from services.dashboard.views import (
     command_center,
     data_quality,
     incident_dossier,
+    incident_workflow,
     incident_timeline,
+    baseline_intelligence,
+    build_regression,
     scaling_readiness,
     selected_server,
     source_schemas,
     timeline_stages,
     recommendation_rules,
     rule_testing,
+    fix_validation,
     query_performance,
     performance_config,
+    analyst_toolkit,
+    documentation,
+    demo_control_center,
 )
 
 @dataclass(frozen=True)
@@ -46,14 +53,21 @@ WORKSPACES: list[Workspace] = [
     Workspace("selected_server", "Selected Server", selected_server.render),
     Workspace("scaling_readiness", "Scaling Readiness", scaling_readiness.render),
     Workspace("incident_dossier", "Incident Dossier", incident_dossier.render),
+    Workspace("incident_workflow", "Incident Workflow", incident_workflow.render),
     Workspace("incident_timeline", "Incident Timeline", incident_timeline.render),
+    Workspace("baseline_intelligence", "Baseline Intelligence", baseline_intelligence.render),
+    Workspace("build_regression", "Build Regression", build_regression.render),
     Workspace("rule_testing", "Rule Testing", rule_testing.render),
+    Workspace("fix_validation", "Fix Validation", fix_validation.render),
     Workspace("recommendation_rules", "Recommendation Rules", recommendation_rules.render),
     Workspace("timeline_stages", "Timeline Stages", timeline_stages.render),
     Workspace("data_quality", "Data Quality", data_quality.render),
     Workspace("source_schemas", "Source Schemas", source_schemas.render),
     Workspace("query_performance", "Query Performance", query_performance.render),
     Workspace("performance_config", "Performance Config", performance_config.render),
+    Workspace("analyst_toolkit", "Analyst Toolkit", analyst_toolkit.render),
+    Workspace("documentation", "Documentation", documentation.render),
+    Workspace("demo_control_center", "Demo Control Center", demo_control_center.render),
 ]
 
 WORKSPACE_GROUPS: list[WorkspaceGroup] = [
@@ -67,19 +81,25 @@ WORKSPACE_GROUPS: list[WorkspaceGroup] = [
         key="incidents",
         label="Incidents",
         description="Incident triage, evidence drilldown, and historical root-cause replay.",
-        workspace_keys=("incident_dossier", "incident_timeline"),
+        workspace_keys=("incident_dossier", "incident_workflow", "incident_timeline", "baseline_intelligence", "build_regression"),
     ),
     WorkspaceGroup(
         key="rules_replay",
         label="Rules & Replay",
         description="Rule testing, recommendation logic, and configurable timeline stages.",
-        workspace_keys=("rule_testing", "recommendation_rules", "timeline_stages"),
+        workspace_keys=("rule_testing", "fix_validation", "recommendation_rules", "timeline_stages"),
     ),
     WorkspaceGroup(
         key="data_governance",
         label="Data & Schemas",
         description="Telemetry quality and source schema adaptability.",
-        workspace_keys=("data_quality", "source_schemas", "query_performance", "performance_config"),
+        workspace_keys=("data_quality", "source_schemas", "query_performance", "performance_config", "analyst_toolkit", "documentation"),
+    ),
+    WorkspaceGroup(
+        key="demo",
+        label="Demo",
+        description="Portfolio demo scenarios, command launchers, and demo runbooks.",
+        workspace_keys=("demo_control_center",),
     ),
 ]
 

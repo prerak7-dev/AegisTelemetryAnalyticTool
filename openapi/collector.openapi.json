@@ -1,0 +1,365 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "AegisTelemetry Collector API",
+    "version": "0.3.0",
+    "description": "Ingress API for gameplay telemetry batches, source profile discovery, health, and metrics."
+  },
+  "paths": {
+    "/health": {
+      "get": {
+        "summary": "Collector health and runtime counters",
+        "operationId": "getHealth",
+        "responses": {
+          "200": {
+            "description": "Collector is healthy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/metrics": {
+      "get": {
+        "summary": "Prometheus-compatible metrics",
+        "operationId": "getMetrics",
+        "responses": {
+          "200": {
+            "description": "Prometheus text exposition",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/source-profiles": {
+      "get": {
+        "summary": "List available source profiles",
+        "operationId": "listSourceProfiles",
+        "responses": {
+          "200": {
+            "description": "Available source profiles",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SourceProfilesResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/events": {
+      "post": {
+        "summary": "Ingest telemetry events",
+        "operationId": "ingestEvents",
+        "parameters": [
+          {
+            "name": "source_profile",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Mapping profile used to normalize non-canonical telemetry."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/TelemetryEvent"
+                  },
+                  {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/TelemetryEvent"
+                    }
+                  },
+                  {
+                    "$ref": "#/components/schemas/EventBatchEnvelope"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Ingestion result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IngestionResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad source profile or malformed payload"
+          },
+          "503": {
+            "description": "Kafka producer unavailable"
+          }
+        }
+      }
+    },
+    "/v1/events/{source_profile}": {
+      "post": {
+        "summary": "Ingest telemetry events with explicit source profile",
+        "operationId": "ingestEventsWithProfile",
+        "parameters": [
+          {
+            "name": "source_profile",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/TelemetryEvent"
+                  },
+                  {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/TelemetryEvent"
+                    }
+                  },
+                  {
+                    "$ref": "#/components/schemas/EventBatchEnvelope"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Ingestion result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IngestionResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad source profile or malformed payload"
+          },
+          "503": {
+            "description": "Kafka producer unavailable"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "TelemetryEvent": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": [
+          "event_time",
+          "server_id",
+          "region"
+        ],
+        "properties": {
+          "event_id": {
+            "type": "string"
+          },
+          "event_time": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "source_profile": {
+            "type": "string"
+          },
+          "region": {
+            "type": "string"
+          },
+          "server_id": {
+            "type": "string"
+          },
+          "match_id": {
+            "type": "string"
+          },
+          "map_id": {
+            "type": "string"
+          },
+          "zone_id": {
+            "type": "string"
+          },
+          "build_version": {
+            "type": "string"
+          },
+          "event_type": {
+            "type": "string"
+          },
+          "priority": {
+            "type": "integer"
+          },
+          "server_frame_ms": {
+            "type": "number"
+          },
+          "packet_loss_percent": {
+            "type": "number"
+          },
+          "packet_out_kbps": {
+            "type": "number"
+          },
+          "replicated_objects": {
+            "type": "integer"
+          },
+          "players_nearby": {
+            "type": "integer"
+          },
+          "player_count": {
+            "type": "integer"
+          }
+        }
+      },
+      "EventBatchEnvelope": {
+        "type": "object",
+        "required": [
+          "events"
+        ],
+        "properties": {
+          "source_profile": {
+            "type": "string"
+          },
+          "events": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TelemetryEvent"
+            }
+          }
+        }
+      },
+      "IngestionResult": {
+        "type": "object",
+        "required": [
+          "source_profile",
+          "accepted",
+          "failed",
+          "sampled_or_dropped",
+          "mapped",
+          "validation_errors"
+        ],
+        "properties": {
+          "source_profile": {
+            "type": "string"
+          },
+          "accepted": {
+            "type": "integer"
+          },
+          "failed": {
+            "type": "integer"
+          },
+          "sampled_or_dropped": {
+            "type": "integer"
+          },
+          "mapped": {
+            "type": "integer"
+          },
+          "validation_errors": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "event_id": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "error": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "HealthResponse": {
+        "type": "object",
+        "required": [
+          "status",
+          "kafka_bootstrap_servers",
+          "accepted_events",
+          "failed_events"
+        ],
+        "properties": {
+          "status": {
+            "type": "string"
+          },
+          "kafka_bootstrap_servers": {
+            "type": "string"
+          },
+          "accepted_events": {
+            "type": "integer"
+          },
+          "failed_events": {
+            "type": "integer"
+          },
+          "mapped_events": {
+            "type": "integer"
+          },
+          "sampled_or_dropped_events": {
+            "type": "integer"
+          },
+          "default_source_profile": {
+            "type": "string"
+          },
+          "available_source_profiles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "SourceProfilesResponse": {
+        "type": "object",
+        "required": [
+          "default_source_profile",
+          "profiles"
+        ],
+        "properties": {
+          "default_source_profile": {
+            "type": "string"
+          },
+          "profiles": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          }
+        }
+      }
+    }
+  }
+}

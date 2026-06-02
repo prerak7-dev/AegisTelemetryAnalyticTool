@@ -10,6 +10,7 @@ from services.dashboard.charts import (
 )
 from services.dashboard.components import render_paper_metric, render_pressure_card, render_table
 from services.dashboard.context import DashboardContext
+from services.dashboard.live_snapshots import preferred_live_table, snapshot_badge
 from services.dashboard.performance_config import (
     baseline_cfg,
     cfg_get,
@@ -31,7 +32,7 @@ from services.dashboard.query import combined_filter_sql, query_df_named
 def render_pressure_cards(pressure_items: list[dict]) -> None:
     cols_per_row = 3
     for start in range(0, len(pressure_items), cols_per_row):
-        cols = st.columns(cols_per_row)
+        cols = st.columns(cols_per_row, gap="medium")
         for col, item in zip(cols, pressure_items[start:start + cols_per_row]):
             with col:
                 render_pressure_card(
@@ -47,23 +48,34 @@ def render_pipeline_health(context: DashboardContext) -> None:
         return
 
     filters = context.filters
-    aggregate_table = table_name("aggregate_zone_table")
+    live_health_table, using_health_snapshot = preferred_live_table(
+        snapshot_config_key="live_pressure_summary_table",
+        fallback_config_key="aggregate_zone_table",
+    )
     warning_seconds = int(cfg_get("pipeline_health.staleness_warning_seconds", 90) or 90)
     critical_seconds = int(cfg_get("pipeline_health.staleness_critical_seconds", 240) or 240)
     min_recent_rows = int(cfg_get("pipeline_health.minimum_recent_rows_warning", 10) or 10)
 
     health = query_df_named(
-        "command_center_pipeline_health",
+        "command_center_live_snapshot_pipeline_health" if using_health_snapshot else "command_center_pipeline_health",
         f"""
         SELECT
-          max(window_start) AS latest_window,
-          dateDiff('second', max(window_start), now()) AS staleness_seconds,
-          count() AS aggregate_rows,
-          countDistinct(server_id) AS observed_servers,
-          countDistinct(source_profile) AS observed_sources
-        FROM {aggregate_table}
-        WHERE {filters.time_filter}
-          AND {context.active_filter}
+          latest_window,
+          dateDiff('second', latest_window, now()) AS staleness_seconds,
+          aggregate_rows,
+          observed_servers,
+          observed_sources
+        FROM
+        (
+          SELECT
+            max(window_start) AS latest_window,
+            count() AS aggregate_rows,
+            countDistinct(server_id) AS observed_servers,
+            countDistinct(source_profile) AS observed_sources
+          FROM {live_health_table}
+          WHERE {filters.time_filter}
+            AND {context.active_filter}
+        )
         """,
         cache_policy="live",
     )
@@ -82,7 +94,7 @@ def render_pipeline_health(context: DashboardContext) -> None:
     else:
         status = "HEALTHY"
 
-    h1, h2, h3, h4 = st.columns(4)
+    h1, h2, h3, h4 = st.columns(4, gap="medium")
     with h1:
         render_paper_metric("Pipeline status", status)
     with h2:
@@ -190,20 +202,23 @@ def render(context: DashboardContext) -> None:
     filters = context.filters
     aggregate_table = table_name("aggregate_zone_table")
     quality_table = table_name("data_quality_table")
-
-    st.markdown('<div class="pressure-section-title">Live Pressure Overview</div>', unsafe_allow_html=True)
-    st.markdown(
-        """
-        <div class="pressure-callout">
-          <b>Phase 7.2:</b> Command Center now uses configurable pressure budgets, query budgets, cache policies,
-          table names, baseline settings, and pipeline-health thresholds. Expensive sections remain lazy-loaded.
-        </div>
-        """,
-        unsafe_allow_html=True,
+    live_pressure_table, using_pressure_snapshot = preferred_live_table(
+        snapshot_config_key="live_pressure_summary_table",
+        fallback_config_key="aggregate_zone_table",
+    )
+    live_hot_zone_table, using_hot_zone_snapshot = preferred_live_table(
+        snapshot_config_key="live_hot_zone_table",
+        fallback_config_key="aggregate_zone_table",
+    )
+    live_regional_table, using_regional_snapshot = preferred_live_table(
+        snapshot_config_key="live_regional_pressure_table",
+        fallback_config_key="aggregate_zone_table",
     )
 
+    st.markdown('<div class="pressure-section-title">Live Pressure Overview</div>', unsafe_allow_html=True)
+
     summary = query_df_named(
-        "command_center_live_pressure_summary",
+        "command_center_live_snapshot_summary" if using_pressure_snapshot else "command_center_live_pressure_summary",
         f"""
         SELECT
           max(window_start) AS latest_window,
@@ -226,7 +241,7 @@ def render(context: DashboardContext) -> None:
           sum(matchmaking_events) AS matchmaking_events,
           quantile(0.95)(matchmaking_queue_p95) AS matchmaking_queue_p95,
           sum(desync_events + rubberband_events) AS player_impact_events
-        FROM {aggregate_table}
+        FROM {live_pressure_table}
         WHERE {filters.time_filter}
           AND {context.active_filter}
         """,
@@ -269,7 +284,7 @@ def render(context: DashboardContext) -> None:
         st.subheader("Pressure trend timeline")
         st.caption("Normalized pressure scores over time. Pressure budgets are loaded from the dashboard performance profile.")
         timeline = query_df_named(
-            "command_center_pressure_timeline",
+            "command_center_live_snapshot_timeline" if using_pressure_snapshot else "command_center_pressure_timeline",
             f"""
             SELECT
               window_start,
@@ -290,7 +305,7 @@ def render(context: DashboardContext) -> None:
               quantile(0.95)(matchmaking_queue_p95) AS matchmaking_queue_p95,
               sum(desync_events) AS desync_events,
               sum(rubberband_events) AS rubberband_events
-            FROM {aggregate_table}
+            FROM {live_pressure_table}
             WHERE {filters.time_filter}
               AND {context.active_filter}
             GROUP BY window_start
@@ -354,7 +369,7 @@ def render(context: DashboardContext) -> None:
         )
 
         drilldown = query_df_named(
-            "command_center_pressure_drilldown",
+            "command_center_live_snapshot_hotzones" if using_hot_zone_snapshot else "command_center_pressure_drilldown",
             f"""
             SELECT
               window_start,
@@ -383,7 +398,7 @@ def render(context: DashboardContext) -> None:
               hot_zone_risk_score,
               top_ability_id,
               top_event_type
-            FROM {aggregate_table}
+            FROM {live_hot_zone_table}
             WHERE {filters.time_filter}
               AND {context.active_filter}
             ORDER BY window_start DESC
@@ -444,14 +459,14 @@ def render(context: DashboardContext) -> None:
         st.subheader("Realtime server frame pressure")
         st.caption("Still available as the primary simulation symptom, but no longer the only Command Center signal.")
         perf = query_df_named(
-            "command_center_frame_time_symptom_timeline",
+            "command_center_live_snapshot_frame_timeline" if using_pressure_snapshot else "command_center_frame_time_symptom_timeline",
             f"""
             SELECT
               window_start,
               source_profile,
               region,
               quantile(0.95)(server_frame_ms_p95) AS p95_frame
-            FROM {aggregate_table}
+            FROM {live_pressure_table}
             WHERE {filters.time_filter}
               AND {context.active_filter}
             GROUP BY window_start, source_profile, region
@@ -479,7 +494,7 @@ def render(context: DashboardContext) -> None:
         st.subheader("Worst hot zones")
         st.caption("Highest-risk server/zone windows in the selected source, region, and server scope.")
         hotzones = query_df_named(
-            "command_center_worst_hot_zones",
+            "command_center_live_snapshot_worst_hot_zones" if using_hot_zone_snapshot else "command_center_worst_hot_zones",
             f"""
             SELECT
               window_start,
@@ -498,7 +513,7 @@ def render(context: DashboardContext) -> None:
               desync_events,
               rubberband_events,
               hot_zone_risk_score
-            FROM {aggregate_table}
+            FROM {live_hot_zone_table}
             WHERE {filters.time_filter}
               AND {context.active_filter}
             ORDER BY window_start DESC, hot_zone_risk_score DESC
@@ -515,7 +530,7 @@ def render(context: DashboardContext) -> None:
     st.subheader("Source + regional pressure summary")
     st.caption("Executive fleet view: compare multidimensional pressure across source schemas and regions.")
     regional = query_df_named(
-        "command_center_source_regional_pressure_summary",
+        "command_center_live_snapshot_regional" if using_pressure_snapshot else "command_center_source_regional_pressure_summary",
         f"""
         SELECT
           source_profile,
@@ -531,7 +546,7 @@ def render(context: DashboardContext) -> None:
           quantile(0.95)(matchmaking_queue_p95) AS matchmaking_queue_p95,
           sum(rubberband_events) AS rubberband_events,
           sum(desync_events) AS desync_events
-        FROM {aggregate_table}
+        FROM {live_pressure_table}
         WHERE {filters.time_filter}
           AND {context.active_filter}
         GROUP BY source_profile, region

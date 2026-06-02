@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Any
 
 from fastapi import Body, FastAPI, HTTPException, Query
+from fastapi.responses import PlainTextResponse
 from jsonschema import Draft202012Validator
 from kafka import KafkaProducer
 from kafka.errors import NoBrokersAvailable
@@ -203,6 +204,36 @@ def health() -> dict[str, Any]:
             "priority3_sample_rate": PRIORITY3_SAMPLE_RATE,
         },
     }
+
+
+@app.get("/metrics", response_class=PlainTextResponse)
+def metrics() -> str:
+    """Prometheus-compatible collector metrics.
+
+    This intentionally avoids adding a runtime dependency while giving production
+    dashboards a stable scrape target.
+    """
+    lines = [
+        "# HELP aegis_collector_accepted_events_total Events accepted by the collector.",
+        "# TYPE aegis_collector_accepted_events_total counter",
+        f"aegis_collector_accepted_events_total {accepted_events}",
+        "# HELP aegis_collector_failed_events_total Events that failed schema/profile validation.",
+        "# TYPE aegis_collector_failed_events_total counter",
+        f"aegis_collector_failed_events_total {failed_events}",
+        "# HELP aegis_collector_mapped_events_total Events normalized through a source profile.",
+        "# TYPE aegis_collector_mapped_events_total counter",
+        f"aegis_collector_mapped_events_total {mapped_events}",
+        "# HELP aegis_collector_sampled_or_dropped_events_total Events dropped by adaptive load shedding.",
+        "# TYPE aegis_collector_sampled_or_dropped_events_total counter",
+        f"aegis_collector_sampled_or_dropped_events_total {sampled_or_dropped_events}",
+        "# HELP aegis_collector_adaptive_sampling_enabled Adaptive sampling/load shedding enabled flag.",
+        "# TYPE aegis_collector_adaptive_sampling_enabled gauge",
+        f"aegis_collector_adaptive_sampling_enabled {1 if ENABLE_LOAD_SHEDDING else 0}",
+        "# HELP aegis_collector_load_shed_batch_threshold Configured batch threshold for load shedding.",
+        "# TYPE aegis_collector_load_shed_batch_threshold gauge",
+        f"aegis_collector_load_shed_batch_threshold {LOAD_SHED_BATCH_THRESHOLD}",
+    ]
+    return "\n".join(lines) + "\n"
 
 @app.get("/v1/source-profiles")
 def list_source_profiles() -> dict[str, Any]:

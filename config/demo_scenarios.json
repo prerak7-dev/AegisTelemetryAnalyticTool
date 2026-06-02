@@ -1,0 +1,270 @@
+{
+  "version": "11.0",
+  "description": "Configurable demo scenarios for portfolio/live-ops walkthroughs.",
+  "scenarios": [
+    {
+      "id": "normal_load",
+      "title": "Normal Load",
+      "category": "baseline",
+      "description": "Healthy fleet baseline for Command Center, query performance, and normal-pressure comparison.",
+      "recommended_workspace": "Command Center",
+      "default_duration_sec": 180,
+      "default_events_per_second": 120,
+      "commands": [
+        {
+          "label": "Generate normal telemetry",
+          "args": [
+            "--scenario",
+            "normal_load",
+            "--build-version",
+            "0.2.0-demo"
+          ]
+        }
+      ],
+      "talk_track": [
+        "Start with healthy fleet telemetry.",
+        "Show multidimensional pressure cards staying stable.",
+        "Use this as the comparison baseline before triggering an incident."
+      ]
+    },
+    {
+      "id": "weekend_event_meltdown",
+      "title": "Weekend Event Meltdown",
+      "category": "incident",
+      "description": "High-density event traffic that should produce frame, replication, and player-impact incidents.",
+      "recommended_workspace": "Incident Dossier",
+      "default_duration_sec": 240,
+      "default_events_per_second": 220,
+      "commands": [
+        {
+          "label": "Generate weekend event meltdown",
+          "args": [
+            "--scenario",
+            "weekend_event_meltdown",
+            "--build-version",
+            "0.2.1-event"
+          ]
+        }
+      ],
+      "talk_track": [
+        "Trigger a live event pressure scenario.",
+        "Show Command Center pressure rising.",
+        "Open Incident Dossier and Incident Timeline to explain the evidence chain.",
+        "Assign owner and add a note in Incident Workflow."
+      ]
+    },
+    {
+      "id": "network_packet_pressure",
+      "title": "Network Packet Pressure",
+      "category": "incident",
+      "description": "Network-heavy traffic for packet-out, packet-loss, rubberbanding, and desync analysis.",
+      "recommended_workspace": "Command Center",
+      "default_duration_sec": 210,
+      "default_events_per_second": 180,
+      "commands": [
+        {
+          "label": "Generate network pressure",
+          "args": [
+            "--scenario",
+            "replication_overload",
+            "--build-version",
+            "0.2.1-network"
+          ]
+        }
+      ],
+      "talk_track": [
+        "Show network and replication pressure becoming dominant.",
+        "Use drilldown to identify affected source/region/server scope.",
+        "Validate player-impact guardrails through Incident Dossier."
+      ]
+    },
+    {
+      "id": "ai_pathfinding_spike",
+      "title": "AI Pathfinding Spike",
+      "category": "incident",
+      "description": "AI pathfinding pressure scenario for simulation degradation and root-cause timeline review.",
+      "recommended_workspace": "Incident Timeline",
+      "default_duration_sec": 210,
+      "default_events_per_second": 170,
+      "commands": [
+        {
+          "label": "Generate AI spike",
+          "args": [
+            "--scenario",
+            "ai_pathfinding_spike",
+            "--build-version",
+            "0.2.1-ai"
+          ]
+        }
+      ],
+      "talk_track": [
+        "Show AI pressure rising before frame degradation.",
+        "Use configurable root-cause stages to explain the incident sequence.",
+        "Review recommendations and guardrails."
+      ]
+    },
+    {
+      "id": "memory_pressure",
+      "title": "Memory Pressure",
+      "category": "incident",
+      "description": "Memory pressure scenario for persistent-session degradation and memory-specific recommendations.",
+      "recommended_workspace": "Incident Dossier",
+      "default_duration_sec": 210,
+      "default_events_per_second": 150,
+      "commands": [
+        {
+          "label": "Generate memory pressure",
+          "args": [
+            "--scenario",
+            "memory_pressure",
+            "--build-version",
+            "0.2.1-memory"
+          ]
+        }
+      ],
+      "talk_track": [
+        "Show memory becoming a first-class pressure dimension.",
+        "Use incident filters to isolate memory_pressure recommendations.",
+        "Assign owner in Incident Workflow."
+      ]
+    },
+    {
+      "id": "physics_spike",
+      "title": "Physics Spike",
+      "category": "incident",
+      "description": "Physics-heavy gameplay scenario for collision/overlap pressure and simulation impact.",
+      "recommended_workspace": "Baseline Intelligence",
+      "default_duration_sec": 210,
+      "default_events_per_second": 180,
+      "commands": [
+        {
+          "label": "Generate physics spike",
+          "args": [
+            "--scenario",
+            "physics_spike",
+            "--build-version",
+            "0.2.1-physics"
+          ]
+        }
+      ],
+      "talk_track": [
+        "Show physics pressure and local anomaly score.",
+        "Open Baseline Intelligence to compare current physics against expected ranges.",
+        "Review whether the spike is normal for that map/zone or truly anomalous."
+      ]
+    },
+    {
+      "id": "build_regression",
+      "title": "Build Regression",
+      "category": "release_readiness",
+      "description": "Two-build scenario: baseline build followed by a candidate build with synthetic regression.",
+      "recommended_workspace": "Build Regression",
+      "default_duration_sec": 180,
+      "default_events_per_second": 150,
+      "commands": [
+        {
+          "label": "Generate previous build baseline",
+          "args": [
+            "--scenario",
+            "normal_load",
+            "--build-version",
+            "0.2.0",
+            "--build-regression-mode",
+            "none"
+          ]
+        },
+        {
+          "label": "Generate current build regression",
+          "args": [
+            "--scenario",
+            "normal_load",
+            "--build-version",
+            "0.2.1",
+            "--build-regression-mode",
+            "candidate_regressed"
+          ]
+        }
+      ],
+      "talk_track": [
+        "Generate two builds in the same time window.",
+        "Open Build Regression.",
+        "Compare 0.2.0 against 0.2.1 and review PASS/WATCH/BLOCK outcome.",
+        "Show most regressed map/zone and metric ranking."
+      ]
+    },
+    {
+      "id": "fix_validation",
+      "title": "Fix Validation",
+      "category": "experimentation",
+      "description": "Control/treatment validation for a replication-radius optimization with guardrail monitoring.",
+      "recommended_workspace": "Fix Validation",
+      "default_duration_sec": 180,
+      "default_events_per_second": 140,
+      "commands": [
+        {
+          "label": "Generate control variant",
+          "args": [
+            "--scenario",
+            "replication_overload",
+            "--build-version",
+            "0.2.1",
+            "--experiment-id",
+            "replication_radius_fix",
+            "--experiment-variant",
+            "control",
+            "--fix-validation-mode",
+            "control"
+          ]
+        },
+        {
+          "label": "Generate treatment variant",
+          "args": [
+            "--scenario",
+            "replication_overload",
+            "--build-version",
+            "0.2.1",
+            "--experiment-id",
+            "replication_radius_fix",
+            "--experiment-variant",
+            "treatment",
+            "--fix-validation-mode",
+            "treatment_improved"
+          ]
+        }
+      ],
+      "talk_track": [
+        "Generate control and treatment variants.",
+        "Open Fix Validation.",
+        "Show primary metrics improving while guardrails remain safe.",
+        "Explain how the result closes the detect \u2192 recommend \u2192 validate loop."
+      ]
+    },
+    {
+      "id": "custom_rule_trigger",
+      "title": "Custom Rule Trigger",
+      "category": "rules",
+      "description": "High-pressure traffic intended to exercise configurable recommendation rules.",
+      "recommended_workspace": "Rule Testing",
+      "default_duration_sec": 210,
+      "default_events_per_second": 190,
+      "commands": [
+        {
+          "label": "Generate custom-rule pressure",
+          "args": [
+            "--scenario",
+            "weekend_event_meltdown",
+            "--build-version",
+            "0.2.1-rules",
+            "--invalid-rate",
+            "0.03"
+          ]
+        }
+      ],
+      "talk_track": [
+        "Open Rule Testing or Recommendation Rules.",
+        "Show that users can configure issue conditions and solutions.",
+        "Trigger incident output and review evidence-backed recommendations."
+      ]
+    }
+  ]
+}

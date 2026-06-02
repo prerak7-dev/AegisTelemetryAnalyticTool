@@ -1,0 +1,73 @@
+{
+  "title": "AegisTelemetry Production Readiness",
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "10s",
+  "panels": [
+    {
+      "title": "Collector Accepted Events",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "rate(aegis_collector_accepted_events_total[1m])",
+          "legendFormat": "accepted/sec"
+        }
+      ],
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 12,
+        "h": 8
+      }
+    },
+    {
+      "title": "Collector Validation Failures",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "rate(aegis_collector_failed_events_total[1m])",
+          "legendFormat": "failed/sec"
+        }
+      ],
+      "gridPos": {
+        "x": 12,
+        "y": 0,
+        "w": 12,
+        "h": 8
+      }
+    },
+    {
+      "title": "Adaptive Load Shedding Drops",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "rate(aegis_collector_sampled_or_dropped_events_total[1m])",
+          "legendFormat": "dropped/sec"
+        }
+      ],
+      "gridPos": {
+        "x": 0,
+        "y": 8,
+        "w": 12,
+        "h": 8
+      }
+    },
+    {
+      "title": "Redpanda Under Replicated Partitions",
+      "type": "stat",
+      "targets": [
+        {
+          "expr": "vector(0)",
+          "legendFormat": "configure-redpanda-metric"
+        }
+      ],
+      "gridPos": {
+        "x": 12,
+        "y": 8,
+        "w": 12,
+        "h": 8
+      }
+    }
+  ]
+}

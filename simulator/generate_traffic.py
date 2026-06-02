@@ -36,6 +36,7 @@ def base_event(
     map_id: str,
     zone_id: str,
     priority: int = 1,
+    build_version: str = "0.2.0-phase2",
 ) -> dict[str, Any]:
     return {
         "event_id": str(uuid.uuid4()),
@@ -48,7 +49,7 @@ def base_event(
         "match_id": match_id,
         "map_id": map_id,
         "zone_id": zone_id,
-        "build_version": "0.2.0-phase2",
+        "build_version": build_version,
         "sequence_id": sequence_id,
         "server_tick": sequence_id * 2,
         "scenario": scenario,
@@ -71,7 +72,16 @@ def choose_topology(scenario: str) -> tuple[str, str, str, str, str]:
 
     return region, server_id, match_id, map_id, zone_id
 
-def generate_event(scenario: str, sequence_id: int, invalid_rate: float = 0.0) -> dict[str, Any]:
+def generate_event(
+    scenario: str,
+    sequence_id: int,
+    invalid_rate: float = 0.0,
+    build_version: str = "0.2.0-phase2",
+    build_regression_mode: str = "none",
+    experiment_id: str = "",
+    experiment_variant: str = "",
+    fix_validation_mode: str = "none",
+) -> dict[str, Any]:
     region, server_id, match_id, map_id, zone_id = choose_topology(scenario)
 
     nearby = int(clamp(random.gauss(24, 12), 1, 80))
@@ -164,7 +174,65 @@ def generate_event(scenario: str, sequence_id: int, invalid_rate: float = 0.0) -
             packet_out += random.uniform(1200, 2800)
             matchmaking_queue_length += random.randint(80, 600)
 
-    event = base_event(scenario, sequence_id, category, event_type, region, server_id, match_id, map_id, zone_id, priority)
+    # Optional build regression demo mode. This lets analysts generate an
+    # older baseline build and a newer regressed build without changing the
+    # scenario itself.
+    if build_regression_mode == "candidate_regressed":
+        frame_ms *= random.uniform(1.18, 1.55)
+        cpu *= random.uniform(1.08, 1.28)
+        packet_out *= random.uniform(1.20, 1.80)
+        packet_loss += random.uniform(0.4, 2.8)
+        replicated_objects = int(replicated_objects * random.uniform(1.12, 1.65))
+        physics_events = int(physics_events * random.uniform(1.15, 1.75) + random.randint(0, 18))
+    elif build_regression_mode == "candidate_improved":
+        frame_ms *= random.uniform(0.72, 0.92)
+        cpu *= random.uniform(0.78, 0.96)
+        packet_out *= random.uniform(0.70, 0.90)
+        packet_loss *= random.uniform(0.45, 0.80)
+        replicated_objects = int(replicated_objects * random.uniform(0.65, 0.90))
+        physics_events = int(physics_events * random.uniform(0.55, 0.85))
+
+    # Optional fix-validation demo mode. This simulates a control/treatment
+    # comparison for validating a recommended optimization while preserving
+    # guardrail signals such as packet loss, desync, and rubberbanding.
+    if fix_validation_mode == "treatment_improved":
+        frame_ms *= random.uniform(0.68, 0.88)
+        cpu *= random.uniform(0.72, 0.92)
+        packet_out *= random.uniform(0.62, 0.86)
+        packet_loss *= random.uniform(0.55, 0.85)
+        replicated_objects = int(replicated_objects * random.uniform(0.55, 0.82))
+        physics_events = int(physics_events * random.uniform(0.50, 0.80))
+    elif fix_validation_mode == "treatment_regressed":
+        frame_ms *= random.uniform(1.18, 1.48)
+        cpu *= random.uniform(1.08, 1.26)
+        packet_out *= random.uniform(1.18, 1.55)
+        packet_loss += random.uniform(0.6, 3.2)
+        replicated_objects = int(replicated_objects * random.uniform(1.12, 1.55))
+        physics_events = int(physics_events * random.uniform(1.12, 1.65) + random.randint(0, 20))
+    elif fix_validation_mode == "treatment_guardrail_regressed":
+        frame_ms *= random.uniform(0.72, 0.92)
+        cpu *= random.uniform(0.80, 0.98)
+        packet_out *= random.uniform(0.70, 0.92)
+        replicated_objects = int(replicated_objects * random.uniform(0.70, 0.92))
+        # Performance looks better, but player/network guardrails get worse.
+        packet_loss += random.uniform(2.5, 7.5)
+    elif fix_validation_mode == "control":
+        # Explicit no-op for readability in demo commands.
+        pass
+
+    event = base_event(
+        scenario,
+        sequence_id,
+        category,
+        event_type,
+        region,
+        server_id,
+        match_id,
+        map_id,
+        zone_id,
+        priority,
+        build_version=build_version,
+    )
 
     desync = 0
     rubberband = 0
@@ -190,6 +258,12 @@ def generate_event(scenario: str, sequence_id: int, invalid_rate: float = 0.0) -
         "ai_pathfinding_requests": int(clamp(ai_pathfinding_requests, 0, 1200)),
         "matchmaking_queue_length": int(clamp(matchmaking_queue_length, 0, 1000)),
     })
+
+    if experiment_id:
+        event["experiment_id"] = experiment_id
+        event["experiment_variant"] = experiment_variant or fix_validation_mode or "variant"
+        event["change_id"] = f"{experiment_id}:{event['experiment_variant']}"
+        event["validation_plan_id"] = f"validation_plan:{experiment_id}"
 
     # Optional data-quality demo: inject schema-invalid events.
     if invalid_rate > 0 and random.random() < invalid_rate:
@@ -224,6 +298,11 @@ def main() -> None:
     parser.add_argument("--duration-sec", type=int, default=120)
     parser.add_argument("--batch-size", type=int, default=250)
     parser.add_argument("--invalid-rate", type=float, default=0.0, help="Optional validation-failure injection rate from 0.0 to 1.0")
+    parser.add_argument("--build-version", default="0.2.0-phase2", help="Build version stamped onto generated telemetry")
+    parser.add_argument("--build-regression-mode", default="none", choices=["none", "candidate_regressed", "candidate_improved"], help="Optional synthetic build-regression modifier")
+    parser.add_argument("--experiment-id", default="", help="Optional experiment/fix-validation identifier")
+    parser.add_argument("--experiment-variant", default="", help="Optional experiment variant, for example control or treatment")
+    parser.add_argument("--fix-validation-mode", default="none", choices=["none", "control", "treatment_improved", "treatment_regressed", "treatment_guardrail_regressed"], help="Optional synthetic fix-validation modifier")
     args = parser.parse_args()
 
     sequence_id = 0
@@ -235,7 +314,18 @@ def main() -> None:
         batch = []
         for _ in range(args.batch_size):
             sequence_id += 1
-            batch.append(generate_event(args.scenario, sequence_id, invalid_rate=args.invalid_rate))
+            batch.append(
+                generate_event(
+                    args.scenario,
+                    sequence_id,
+                    invalid_rate=args.invalid_rate,
+                    build_version=args.build_version,
+                    build_regression_mode=args.build_regression_mode,
+                    experiment_id=args.experiment_id,
+                    experiment_variant=args.experiment_variant,
+                    fix_validation_mode=args.fix_validation_mode,
+                )
+            )
 
         send_batch(args.collector_url, batch)
         expected_batches_per_sec = max(args.events_per_second / args.batch_size, 1)

@@ -7,6 +7,7 @@ from services.dashboard.components import render_paper_metric, render_table
 from services.dashboard.context import DashboardContext
 from services.dashboard.performance_config import cfg_get
 from services.dashboard.query import clear_query_cache, get_query_history
+from services.dashboard.refresh_runtime import clear_refresh_history, get_refresh_history, refresh_status_summary
 
 def render(context: DashboardContext) -> None:
     st.subheader("Query Performance")
@@ -14,6 +15,32 @@ def render(context: DashboardContext) -> None:
         "Local dashboard diagnostics for query duration, budgets, cache policy, returned rows, and query errors. "
         "This helps keep the tool fast as the analytics surface grows."
     )
+
+    refresh_summary = refresh_status_summary()
+    refresh_history = get_refresh_history()
+
+    st.markdown('<div class="pressure-section-title">Auto Refresh Runtime</div>', unsafe_allow_html=True)
+    r1, r2, r3, r4 = st.columns(4)
+    with r1:
+        render_paper_metric("Workspace mode", str(refresh_summary.get("mode", "—")))
+    with r2:
+        render_paper_metric("Auto refresh", "ON" if refresh_summary.get("auto_refresh") else "OFF")
+    with r3:
+        render_paper_metric("Recent refreshes", str(refresh_summary.get("recent_refreshes", 0)))
+    with r4:
+        render_paper_metric("Skipped", str(refresh_summary.get("recent_skipped", 0)))
+
+    if not refresh_history.empty:
+        recent_refresh = refresh_history.tail(80).sort_index(ascending=False)
+        render_table(recent_refresh, height=260)
+    else:
+        st.info("No refresh telemetry recorded yet.")
+
+    clear_col_1, clear_col_2 = st.columns([1, 3])
+    with clear_col_1:
+        if st.button("Clear refresh telemetry", use_container_width=True):
+            clear_refresh_history()
+            st.rerun()
 
     history = get_query_history()
 

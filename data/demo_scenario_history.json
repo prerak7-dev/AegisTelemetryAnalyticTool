@@ -1,0 +1,21 @@
+{
+  "records": [
+    {
+      "command": "python /app/simulator/generate_traffic.py --collector-url http://collector:8000 --events-per-second 220 --duration-sec 240 --batch-size 250 --scenario weekend_event_meltdown --build-version 0.2.1-event",
+      "command_label": "Generate weekend event meltdown",
+      "created_at": "2026-06-02T22:22:29+00:00",
+      "event": "launch",
+      "pid": 39,
+      "scenario_id": "weekend_event_meltdown"
+    },
+    {
+      "command": "python /app/simulator/generate_traffic.py --collector-url http://collector:8000 --events-per-second 220 --duration-sec 240 --batch-size 250 --scenario weekend_event_meltdown --build-version 0.2.1-event",
+      "command_label": "Generate weekend event meltdown",
+      "created_at": "2026-06-02T22:35:23+00:00",
+      "event": "launch",
+      "pid": 78,
+      "scenario_id": "weekend_event_meltdown"
+    }
+  ],
+  "updated_at": "2026-06-02T22:35:23+00:00"
+}

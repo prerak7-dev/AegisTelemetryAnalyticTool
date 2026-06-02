@@ -2,8 +2,6 @@ from __future__ import annotations
 
 import pandas as pd
 import streamlit as st
-from streamlit_autorefresh import st_autorefresh
-
 from services.dashboard.config import (
     ALL_REGIONS,
     ALL_SERVERS,
@@ -15,6 +13,7 @@ from services.dashboard.config import (
 )
 from services.dashboard.components import render_table
 from services.dashboard.context import DashboardContext
+from services.dashboard.live_snapshots import preferred_live_table
 from services.dashboard.query import (
     clear_query_cache,
     combined_filter_sql,
@@ -23,6 +22,7 @@ from services.dashboard.query import (
     server_filter_sql,
     source_filter_sql,
 )
+from services.dashboard.refresh_runtime import record_manual_refresh
 
 LIVE_REFRESH_KEY = "aegis_filter_live_refresh"
 REFRESH_INTERVAL_KEY = "aegis_filter_refresh_interval"
@@ -185,7 +185,7 @@ def _sync_filter_query_params() -> None:
     except Exception:
         return
 
-def render_sidebar() -> DashboardContext:
+def render_sidebar(active_workspace_key: str = "command_center") -> DashboardContext:
     """Render sidebar controls and return normalized dashboard context."""
 
     st.sidebar.header("Operations Controls")
@@ -200,10 +200,8 @@ def render_sidebar() -> DashboardContext:
         format_func=lambda x: f"{x} seconds",
     )
 
-    if refresh:
-        st_autorefresh(interval=int(refresh_interval) * 1000, key="aegis_live_refresh_tick")
-
-    if st.sidebar.button("Refresh now"):
+    if st.sidebar.button("Refresh now", key="aegis_sidebar_refresh_now_button", use_container_width=True):
+        record_manual_refresh(active_workspace_key)
         clear_query_cache()
         st.rerun()
 
@@ -215,22 +213,32 @@ def render_sidebar() -> DashboardContext:
         format_func=lambda x: f"Last {x} minutes",
     )
     time_filter = f"window_start >= now() - INTERVAL {int(time_window_minutes)} MINUTE"
+    sidebar_live_table, using_sidebar_snapshot = preferred_live_table(
+        snapshot_config_key="live_pressure_summary_table",
+        fallback_config_key="aggregate_zone_table",
+    )
 
-    source_profiles_observed = query_df(f"""
+    source_profiles_observed = query_df(
+        f"""
         SELECT
           source_profile,
           count() AS aggregate_windows,
           countDistinct(server_id) AS servers,
           max(window_start) AS last_seen,
           max(hot_zone_risk_score) AS max_risk
-        FROM agg_zone_30s
+        FROM {sidebar_live_table}
         WHERE {time_filter}
         GROUP BY source_profile
         ORDER BY aggregate_windows DESC
         LIMIT 100
-    """)
+        """,
+        name="sidebar_snapshot_source_profiles" if using_sidebar_snapshot else "sidebar_source_profiles",
+        cache_policy="short",
+    )
 
     st.sidebar.header("Source Schema")
+    if using_sidebar_snapshot:
+        st.sidebar.caption("Sidebar filters using live snapshot table.")
     source_options = [ALL_SOURCE_PROFILES]
     if not source_profiles_observed.empty:
         source_options += source_profiles_observed["source_profile"].dropna().astype(str).tolist()
@@ -243,7 +251,8 @@ def render_sidebar() -> DashboardContext:
     )
     source_filter = source_filter_sql(selected_source_profile)
 
-    server_inventory = query_df(f"""
+    server_inventory = query_df(
+        f"""
         SELECT
           source_profile,
           server_id,
@@ -254,13 +263,16 @@ def render_sidebar() -> DashboardContext:
           quantile(0.95)(server_frame_ms_p95) AS p95_frame,
           max(active_players) AS peak_local_players,
           count() AS aggregate_windows
-        FROM agg_zone_30s
+        FROM {sidebar_live_table}
         WHERE {time_filter}
           AND {source_filter}
         GROUP BY source_profile, server_id
         ORDER BY max_risk DESC, last_seen DESC
         LIMIT 300
-    """)
+        """,
+        name="sidebar_snapshot_server_inventory" if using_sidebar_snapshot else "sidebar_server_inventory",
+        cache_policy="short",
+    )
 
     st.sidebar.header("Server Explorer")
 

@@ -108,3 +108,11 @@ CREATE TABLE IF NOT EXISTS aegis_telemetry.data_quality_failures
 ENGINE = MergeTree
 PARTITION BY toYYYYMMDD(failed_at)
 ORDER BY (failed_at, region, server_id, event_type);
+
+
+-- Phase 13.23.2 note:
+-- Optional live snapshot views are no longer created during ClickHouse container
+-- initialization. This keeps the core local stack startup-safe.
+--
+-- To install optional snapshot compatibility views after ClickHouse is healthy:
+--   python tools/apply_live_snapshot_tables.py --host localhost --port 8123 --database aegis_telemetry --password aegis_dev_password
